@@ -18,8 +18,8 @@ class GameScene: SKScene {
         let width: Int = Int(Double(size.width)/(cellSize + 2 * cellMargin))
         let height: Int = Int(Double(size.height)/(cellSize + 2 * cellMargin))
 
-        world = World(width: width, height: height)
-//        world.updateWorld()
+        let aliveCells: [(x: Int, y: Int)] = [(20, 20), (20, 21), (20, 19)]
+        world = World(width: width, height: height, aliveCells: aliveCells)
 
         super.init(size: size)
     }

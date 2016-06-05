@@ -10,13 +10,20 @@ import Foundation
 
 struct Matrix<T> {
     let width: Int, height: Int
-    var grid: [T]
+    private(set) var grid: [T]
 
     init(width: Int, height: Int, repeatValue: T) {
         self.width = width
         self.height = height
 
-        grid = Array<T>(count: width * height, repeatedValue: repeatValue)
+        grid = [T](count: width * height, repeatedValue: repeatValue)
+    }
+    
+    init<U: SequenceType where U.Generator.Element == T>(width: Int, height: Int, elements: U) {
+        self.width = width
+        self.height = height
+        
+        self.grid = [T](elements)
     }
     
     subscript(x: Int, y: Int) -> T {

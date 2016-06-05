@@ -29,7 +29,6 @@
 		9E87A17E1CFF4AD80083855B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9E87A1801CFF4AD80083855B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9E9457A21D01E50500595DC3 /* Operators.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Operators.swift; sourceTree = "<group>"; };
-		9E9457A61D01F04000595DC3 /* Performance.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = Performance.playground; sourceTree = "<group>"; };
 		9E9457A71D0215BE00595DC3 /* Matrix.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Matrix.swift; sourceTree = "<group>"; };
 		9EF0B5181CFF699200F355CF /* Cell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cell.swift; sourceTree = "<group>"; };
 		9EF0B5191CFF699200F355CF /* World.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = World.swift; sourceTree = "<group>"; };
@@ -75,7 +74,6 @@
 				9E87A17B1CFF4AD80083855B /* Assets.xcassets */,
 				9E87A17D1CFF4AD80083855B /* LaunchScreen.storyboard */,
 				9E87A1801CFF4AD80083855B /* Info.plist */,
-				9E9457A61D01F04000595DC3 /* Performance.playground */,
 				9E9457A71D0215BE00595DC3 /* Matrix.swift */,
 			);
 			path = gameoflife;

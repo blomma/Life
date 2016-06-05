@@ -2,6 +2,10 @@ enum CellState {
 	case Alive, Dead
 }
 
-struct Cell {
-	let state: CellState
+class Cell {
+	var state: CellState
+    
+    init(state: CellState) {
+        self.state = state
+    }   
 }
