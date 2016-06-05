@@ -1,39 +1,75 @@
+import QuartzCore
+
 struct World {
-	let cells: [Cell]
+    var m: Matrix<Cell>
 
-	func worldWithNewCells(newCells: [Cell]) -> World {
-		let c = cells
-			.filter { !newCells.contains($0) }
+    init(width: Int, height: Int) {
+        m = Matrix<Cell>(width: width, height: height, repeatValue: Cell(state: .Alive))
+    }
 
-		return World(cells: c + newCells)
+	func updateWorld() -> Void {
+        let c: Int = m.filter { (x: Int, y: Int, element: Cell) -> Bool in
+            element.state == .Alive
+        }.count
+        
+        let newM = m.map({ (x: Int, y: Int, element: Cell) -> Cell in
+            let neighbours = livingNeighboursForCell(x, y: y)
+            
+            if element.state == .Alive {
+                if neighbours < 2 || neighbours > 3 {
+                    return (x, y, Cell(state: .Dead))
+                }
+            } else {
+                if neighbours == 3 {
+                    return (x, y, Cell(state: .Alive))
+                }
+            }
+            
+            return (x, y, cell)
+        })
+        
+        
+        for (x, y, cell) in m {
+            let neighbours = livingNeighboursForCell(x, y: y)
+            if cell.state == .Alive {
+                if neighbours < 2 || neighbours > 3 {                    
+                    cell.state == .Dead
+                }
+            } else {
+                if neighbours == 3 {
+                    cell.state == .Alive
+                }
+            }
+        }
+        
+        let d: Int = m.filter { (x: Int, y: Int, element: Cell) -> Bool in
+            element.state == .Alive
+            }.count
+        
+        print("\(c) \(d)")
 	}
 
-	func updateWorld() -> World {
-		let dyingCells = cells
-			.filter({$0.state == CellState.Alive && (livingNeighboursForCell($0) !~= 2...3) })
+	func neighboursForCell(x: Int, y: Int) -> [Cell] {
+        var cells = [Cell]()
+        let neighboursDelta = [(1, 0), (0, 1), (-1, 0), (0, -1),
+                               (1, 1), (-1, 1), (-1, -1), (1, -1)]
 
-		let newLife = cells
-			.filter({$0.state != CellState.Alive && livingNeighboursForCell($0) == 3})
+        for (deltaX, deltaY) in neighboursDelta {
+            let neighbourX = x + deltaX
+            let neighbourY = y + deltaY
 
-		return worldWithNewCells(dyingCells + newLife)
+            if neighbourX < 0 || neighbourX >= m.width { continue }
+            if neighbourY < 0 || neighbourY >= m.height { continue }
+
+            let cell = m[neighbourX, neighbourY]
+            cells.append(cell)
+        }
+
+        return cells
 	}
 
-	func cellsAreNeigbours(cell1: Cell, cell2: Cell) -> Bool {
-		let delta = (abs(cell1.x - cell2.x), abs(cell1.y - cell2.y))
-		switch (delta) {
-			case (1,1), (1,0), (0,1):
-				return true
-			default:
-				return false
-		}
-	}
-
-	func neighboursForCell(cell: Cell) -> [Cell] {
-		return cells.filter { cellsAreNeigbours(cell, cell2: $0)}
-	}
-
-	func livingNeighboursForCell(cell: Cell) -> Int {
-		return neighboursForCell(cell).filter{ $0.state == CellState.Alive }.count
+	func livingNeighboursForCell(x: Int, y: Int) -> Int {
+		return neighboursForCell(x, y: y).filter{ $0.state == CellState.Alive }.count
 	}
 }
 
