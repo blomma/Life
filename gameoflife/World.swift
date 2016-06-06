@@ -2,41 +2,34 @@ struct World {
 	let m: Matrix<Cell>
 
     init(width: Int, height: Int, aliveCells: [(x: Int, y: Int)] = []) {
-        m = Matrix<Cell>(width: width, height: height, repeatValue: Cell(state: .Dead))
-//        for item in aliveCells {
-//            m[item.x, item.y].state = .Alive
-//        }
+        let c: Cell = Cell(state: .Dead)
+        m = Matrix<Cell>(width: width, height: height, repeatValue: c)
         
-        let t: Bool = m[1, 1] === m[1,2]
-        print("\(t)")
+        for item in aliveCells {
+            m[item.x, item.y] = Cell(state: .Alive)
+        }
     }
 
+    func updateWorld(x: Int, y: Int, cell: Cell) {
+        m[x, y] = cell
+    }
+    
 	func updateWorld() -> Void {
-        let c: Int = m.filter { (x: Int, y: Int, element: Cell) -> Bool in
-            element.state == .Alive
-        }.count
-
         for (x, y, cell) in m {
             let neighbours = livingNeighboursForCell(x, y: y)
             if cell.state == .Alive {
                 if neighbours < 2 || neighbours > 3 {
-                    m[x, y].state = .Dead
+					m[x, y] = Cell(state: .Dead)
                 }
             } else {
                 if neighbours == 3 {
-                    m[x, y].state = .Alive
+					m[x, y] = Cell(state: .Alive)
                 }
             }
         }
-
-        let d: Int = m.filter { (x: Int, y: Int, element: Cell) -> Bool in
-            element.state == .Alive
-            }.count
-
-        print("\(c) \(d)")
 	}
 
-	func neighboursForCell(x: Int, y: Int) -> [Cell] {
+	private func neighboursForCell(x: Int, y: Int) -> [Cell] {
         var cells = [Cell]()
         let neighboursDelta = [(1, 0), (0, 1), (-1, 0), (0, -1),
                                (1, 1), (-1, 1), (-1, -1), (1, -1)]
@@ -55,8 +48,7 @@ struct World {
         return cells
 	}
 
-	func livingNeighboursForCell(x: Int, y: Int) -> Int {
+	private func livingNeighboursForCell(x: Int, y: Int) -> Int {
 		return neighboursForCell(x, y: y).filter{ $0.state == CellState.Alive }.count
 	}
 }
-

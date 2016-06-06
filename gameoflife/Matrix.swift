@@ -1,14 +1,4 @@
-//
-//  Matrix.swift
-//  gameoflife
-//
-//  Created by Mikael Hultgren on 03/06/16.
-//  Copyright © 2016 Mikael Hultgren. All rights reserved.
-//
-
-import Foundation
-
-struct Matrix<T> {
+class Matrix<T> {
     let width: Int, height: Int
     private(set) var grid: [T]
 
@@ -18,14 +8,14 @@ struct Matrix<T> {
 
         grid = [T](count: width * height, repeatedValue: repeatValue)
     }
-    
+
     init<U: SequenceType where U.Generator.Element == T>(width: Int, height: Int, elements: U) {
         self.width = width
         self.height = height
-        
+
         self.grid = [T](elements)
     }
-    
+
     subscript(x: Int, y: Int) -> T {
         get {
             // Sanity check
@@ -43,7 +33,6 @@ struct Matrix<T> {
         }
     }
 }
-
 
 extension Matrix : SequenceType {
     func generate() -> MatrixGenerator<T> {
