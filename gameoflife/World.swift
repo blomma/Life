@@ -2,7 +2,7 @@ struct World {
 	let m: Matrix<Cell>
 
     init(width: Int, height: Int, aliveCells: [(x: Int, y: Int)] = []) {
-        let c: Cell = Cell(state: .Dead)
+        let c: Cell = Cell(state: .Alive)
         m = Matrix<Cell>(width: width, height: height, repeatValue: c)
         
         for item in aliveCells {

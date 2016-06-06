@@ -6,15 +6,21 @@ class GameScene: SKScene {
     let cellSize: Double = 2
     let cellMargin: Double = 1
 
+    let xOffset: Double
+    let yOffset: Double
+    
     var isTouching: Bool = false
     
     override init(size: CGSize) {
-        let width: Int = Int(Double(size.width)/(cellSize + 2 * cellMargin))
-        let height: Int = Int(Double(size.height)/(cellSize + 2 * cellMargin))
-
+        let maxX: Int = Int(Double(size.width)/(cellSize + 2 * cellMargin))
+        let maxY: Int = Int(Double(size.height)/(cellSize + 2 * cellMargin))
+        
+        xOffset = ((Double(size.width) - Double(maxX) * (cellSize + 2 * cellMargin))) / 2
+        yOffset = ((Double(size.height) - Double(maxY) * (cellSize + 2 * cellMargin))) / 2
+        
         let aliveCells: [(x: Int, y: Int)] = [(19, 20), (20, 20), (20, 21), (20, 19)]
-        world = World(width: width, height: height, aliveCells: aliveCells)
-
+        world = World(width: maxX, height: maxY, aliveCells: aliveCells)
+        
         super.init(size: size)
     }
 
@@ -26,21 +32,40 @@ class GameScene: SKScene {
         /* Setup your scene here */
     }
 
+    func addCell(x: Int, y: Int) -> Void {
+        let sprite = SKSpriteNode()
+        sprite.color = UIColor.orangeColor()
+        sprite.size = CGSize(width: cellSize, height: cellSize)
+        sprite.anchorPoint = CGPoint(x: 0, y: 0)
+        sprite.position =
+            CGPoint(
+                x: Double(x) * (cellSize - cellMargin) + xOffset + (2 * cellMargin),
+                y: Double(y) * (cellSize - cellMargin) + yOffset + (2 * cellMargin))
+        
+        self.addChild(sprite)
+    }
+    
     override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {
         for touch in touches {
             let location = touch.locationInNode(self)
-            let x: Int = (Int)(Double(location.x) / (cellSize + 2 * cellMargin))
-            let y: Int = (Int)(Double(location.y) / (cellSize + 2 * cellMargin))
+            
+            let xLoc: Double = Double(location.x)
+            print("xloc:\(xLoc), offset:\(xOffset)")
+            if (xLoc - xOffset < 0 || xLoc + xOffset > Double(self.size.width)) {
+                continue
+            }
+            
+            let yLoc: Double = Double(location.y)
+            print("yloc:\(yLoc), offset:\(yOffset)")
+            if (yLoc - yOffset < 0 || yLoc + yOffset > Double(self.size.height)) {
+                continue
+            }
+            
+            let x: Int = (Int)(xLoc / (cellSize + 2 * cellMargin))
+            let y: Int = (Int)(yLoc / (cellSize + 2 * cellMargin))
             
             world.updateWorld(x, y: y, cell: Cell(state: .Alive))
-            
-            let sprite = SKSpriteNode()
-            sprite.color = UIColor.orangeColor()
-            sprite.size = CGSize(width: cellSize, height: cellSize)
-            sprite.anchorPoint = CGPoint(x: 1, y: 0)
-            sprite.position = CGPoint(x: Double(x) * (cellSize + 2 * cellMargin), y: Double(y) * (cellSize + 2 * cellMargin))
-            
-            self.addChild(sprite)
+            addCell(x, y: y)
         }
     }
     
@@ -64,7 +89,7 @@ class GameScene: SKScene {
         
         lastUpdate = currentTime
         
-        world.updateWorld()
+//        world.updateWorld()
         
         self.removeAllChildren()
 
@@ -73,13 +98,7 @@ class GameScene: SKScene {
         }
 
         for cell in aliveCells {
-            let sprite = SKSpriteNode()
-            sprite.color = UIColor.orangeColor()
-            sprite.size = CGSize(width: cellSize, height: cellSize)
-            sprite.anchorPoint = CGPoint(x: 1, y: 0)
-            sprite.position = CGPoint(x: Double(cell.x) * (cellSize + 2 * cellMargin), y: Double(cell.y) * (cellSize + 2 * cellMargin))
-
-            self.addChild(sprite)
+            addCell(cell.x, y: cell.y)
         }
     }
 }
