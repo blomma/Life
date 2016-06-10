@@ -5,7 +5,7 @@ enum CellState {
 struct Cell {
 	let state: CellState
 
-    init(state: CellState) {
-        self.state = state
-    }
+	init(state: CellState) {
+		self.state = state
+	}
 }

@@ -31,10 +31,10 @@ class GameScene: SKScene {
 	}
 
 	override func didMoveToView(view: SKView) {
-        c.position = CGPoint(x: Double(size.width / 2) + xOffset, y: Double(size.height / 2))
-
-        self.addChild(c)
-        self.camera = c
+//		c.position = CGPoint(x: Double(size.width / 2) + xOffset, y: Double(size.height / 2))
+//
+//		self.addChild(c)
+//		self.camera = c
 	}
 
 	func addCell(x: Int, y: Int) -> Void {
@@ -58,17 +58,11 @@ class GameScene: SKScene {
 			let location = touch.locationInNode(self)
 
 			let xLoc: Double = Double(location.x)
-			if (xLoc - xOffset < 0 || xLoc + xOffset > Double(self.size.width)) {
-				continue
-			}
-
 			let yLoc: Double = Double(location.y)
-			if (yLoc - yOffset < 0 || yLoc + yOffset > Double(self.size.height)) {
-				continue
-			}
 
-			let x: Int = (Int)(xLoc / (cellSize + cellMargin))
-			let y: Int = (Int)(yLoc / (cellSize + cellMargin))
+			// The grid is zero based
+			let x: Int = (Int)(xLoc / (cellSize + cellMargin)) - 1
+			let y: Int = (Int)(yLoc / (cellSize + cellMargin)) - 1
 
 			world.updateWorld(x, y: y, cell: Cell(state: .Alive))
 			addCell(x, y: y)
@@ -95,7 +89,7 @@ class GameScene: SKScene {
 
 		lastUpdate = currentTime
 
-		//        world.updateWorld()
+		world.updateWorld()
 
 		self.removeAllChildren()
 
