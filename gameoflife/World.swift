@@ -1,20 +1,16 @@
 struct World {
 	let m: Matrix<Cell>
 
-	init(width: Int, height: Int, aliveCells: [(x: Int, y: Int)] = []) {
+	init(width: Int, height: Int) {
 		let c: Cell = Cell(state: .Dead)
 		m = Matrix<Cell>(width: width, height: height, repeatValue: c)
-
-		for item in aliveCells {
-			m[item.x, item.y] = Cell(state: .Alive)
-		}
 	}
 
-	func updateWorld(x: Int, y: Int, cell: Cell) {
+	func update(x: Int, y: Int, cell: Cell) {
 		m[x, y] = cell
 	}
 
-	func updateWorld() -> Void {
+	func update() -> Void {
 		for (x, y, cell) in m {
 			let neighbours = livingNeighboursForCell(x, y: y)
 			if cell.state == .Alive {
