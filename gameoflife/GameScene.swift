@@ -7,8 +7,10 @@ class GameScene: SKScene {
 		static let rotate = #selector(GameScene.rotate(_:))
 	}
 	
+	var nodesInWorld: Dictionary<Cell, SKSpriteNode> = Dictionary<Cell, SKSpriteNode>()
+	
 	var previousDistance: Double = 0
-	var previousPoint: CGPoint = CGPointZero
+	var previousPoint: CGPoint = CGPoint.zero
 	var deltaAngle: CGFloat = 0
 	
 	let world: World
@@ -24,6 +26,7 @@ class GameScene: SKScene {
 	
 	var pinch: UIPinchGestureRecognizer?
 	var rotation: UIRotationGestureRecognizer?
+	var isEditing: Bool = false
 	
 	override init(size: CGSize) {
 		// Initial size
@@ -39,7 +42,7 @@ class GameScene: SKScene {
 		// Add initial state
 		let aliveCells: [(x: Int, y: Int)] = [(19, 20), (20, 20), (20, 21), (20, 19)]
 		for cell in aliveCells {
-			world.update(cell.x, y: cell.y, cell: Cell(state: .Alive))
+			world.update(cell: Cell(state: .alive, x: cell.x, y: cell.y))
 		}
 
 		super.init(size: size)
@@ -49,16 +52,16 @@ class GameScene: SKScene {
 		fatalError("init(coder:) has not been implemented")
 	}
 
-	override func didMoveToView(view: SKView) {
-		super.didMoveToView(view)
+	override func didMove(to view: SKView) {
+		super.didMove(to: view)
 		
-		let pinch = UIPinchGestureRecognizer(target: self, action: Action.pinch)
-		self.pinch = pinch
-		self.view?.addGestureRecognizer(pinch)
-		
-		let rotation = UIRotationGestureRecognizer(target: self, action: Action.rotate)
-		self.rotation = rotation
-		self.view?.addGestureRecognizer(rotation)
+//		let pinch = UIPinchGestureRecognizer(target: self, action: Action.pinch)
+//		self.pinch = pinch
+//		self.view?.addGestureRecognizer(pinch)
+//		
+//		let rotation = UIRotationGestureRecognizer(target: self, action: Action.rotate)
+//		self.rotation = rotation
+//		self.view?.addGestureRecognizer(rotation)
 		
 		self.addChild(cameraNode)
 		self.camera = cameraNode
@@ -68,41 +71,59 @@ class GameScene: SKScene {
 		self.addChild(worldNode)
 	}
 	
-	func addCell(x: Int, y: Int) -> Void {
-		let px: Double = (Double(x) * (cellSize + cellMargin)) + (cellSize / 2)
-		let py: Double = (Double(y) * (cellSize + cellMargin)) + (cellSize / 2)
+	func add(cell: Cell) -> Void {
+		let px: Double = (Double(cell.x) * (cellSize + cellMargin)) + (cellSize / 2)
+		let py: Double = (Double(cell.y) * (cellSize + cellMargin)) + (cellSize / 2)
 
 		let sprite = SKSpriteNode()
-		sprite.color = UIColor.orangeColor()
+		sprite.color = UIColor.orange()
 		sprite.size = CGSize(width: cellSize, height: cellSize)
 		sprite.position = CGPoint(x: px, y: py)
+		sprite.alpha = 0
 
 		worldNode.addChild(sprite)
+		nodesInWorld[cell] = sprite
+		sprite.run(SKAction.fadeIn(withDuration: 0.6))
 	}
 
+	func remove(cell: Cell) -> Void {
+		if let node = nodesInWorld[cell] {
+			node.run(SKAction.sequence(
+				[
+					SKAction.fadeOut(withDuration: 0.6),
+					SKAction.removeFromParent()
+				]), completion: { [unowned self] in
+					self.nodesInWorld.removeValue(forKey: cell)
+			})
+		}
+	}
+	
 	var lastUpdate: CFTimeInterval = 0
-	override func update(currentTime: CFTimeInterval) {
-		if (currentTime - lastUpdate < 1) {
+	override func update(_ currentTime: TimeInterval) {
+		if isEditing {
+			return
+		}
+		
+		if currentTime - lastUpdate < 1 {
 			return
 		}
 
 		lastUpdate = currentTime
+		
+		let cells = world.update()
 
-		world.update()
-
-		let aliveCells = world.m.filter { (x: Int, y: Int, element: Cell) -> Bool in
-			element.state == .Alive
+		// Fade out these cells
+		for dyingCell in cells.dyingCells {
+			remove(cell: dyingCell)
 		}
-
-		worldNode.removeAllChildren()
-		for cell in aliveCells {
-			addCell(cell.x, y: cell.y)
+		for bornCell in cells.bornCells {
+			add(cell: bornCell)
 		}
 	}
 }
 
 extension GameScene {
-	func pinch(recognizer: UIPinchGestureRecognizer) -> Void {
+	func pinch(_ recognizer: UIPinchGestureRecognizer) -> Void {
 		guard let camera = camera else {
 			return
 		}
@@ -113,14 +134,14 @@ extension GameScene {
 		camera.yScale = cameraScaledTo
 	}
 	
-	func rotate(recognizer: UIRotationGestureRecognizer) -> Void {
+	func rotate(_ recognizer: UIRotationGestureRecognizer) -> Void {
 		guard let camera = camera else {
 			return
 		}
 		
-		let rotateAction = SKAction.rotateToAngle(recognizer.rotation, duration: 0)
+		let rotateAction = SKAction.rotate(toAngle: recognizer.rotation, duration: 0)
 		camera.removeAllActions()
-		camera.runAction(rotateAction)
+		camera.run(rotateAction)
 	}
 	
 	func distanceSquared(p1: CGPoint, p2: CGPoint) -> Double {
@@ -131,43 +152,44 @@ extension GameScene {
 		return CGPoint(x: toPoint.x - firstPoint.x, y: toPoint.y - firstPoint.y)
 	}
 	
-	override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
-		if touches.count == 2 {
-			guard let camera = camera,let view = self.view else {
-				return
-			}
-			
-			let touchArray = Array(touches)
-			let location1 = touchArray[0].locationInView(self.view)
-			let location2 = touchArray[1].locationInView(self.view)
-			
-//			let x = (max(location1.x, location2.x) - min(location1.x, location2.x)) / 2 + min(location1.x, location2.x)
-//			let y = (max(location1.y, location2.y) - min(location1.y, location2.y)) / 2 + min(location1.y, location2.y)
+	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		isEditing = true
+//		if touches.count == 2 {
+//			guard let camera = camera,let view = self.view else {
+//				return
+//			}
 //			
-//			camera.position = CGPoint(x: x, y: y)
-			
-			previousDistance = distanceSquared(location1, p2: location2)
-			
-			deltaAngle = atan2(location1.y - view.center.y, location1.x - view.center.x)
-		} else if touches.count == 1 {
-			previousPoint = (touches.first?.locationInNode(self))!
-			
-//			cameraNode.runAction(SKAction.moveTo(previousPoint, duration: 0.25))
-		}
+//			let touchArray = Array(touches)
+//			let location1 = touchArray[0].location(in: self.view)
+//			let location2 = touchArray[1].location(in: self.view)
+//			
+////			let x = (max(location1.x, location2.x) - min(location1.x, location2.x)) / 2 + min(location1.x, location2.x)
+////			let y = (max(location1.y, location2.y) - min(location1.y, location2.y)) / 2 + min(location1.y, location2.y)
+////			
+////			camera.position = CGPoint(x: x, y: y)
+//			
+//			previousDistance = distanceSquared(location1, p2: location2)
+//			
+//			deltaAngle = atan2(location1.y - view.center.y, location1.x - view.center.x)
+//		} else if touches.count == 1 {
+//			previousPoint = (touches.first?.location(in: self))!
+//			
+////			cameraNode.runAction(SKAction.moveTo(previousPoint, duration: 0.25))
+//		}
 	}
 	
-	override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {
+	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
 		if touches.count == 2 {
 			// This is a zoom andor rotate
-			guard let camera = camera, let view = self.view else {
-				return
-			}
-			
-			let touchArray = Array(touches)
-			let location1 = touchArray[0].locationInView(view)
-			let location2 = touchArray[1].locationInView(view) // 0.02
-			
-			let distanceNew = distanceSquared(location1, p2: location2)
+//			guard let camera = camera, let view = self.view else {
+//				return
+//			}
+//			
+//			let touchArray = Array(touches)
+//			let location1 = touchArray[0].location(in: view)
+//			let location2 = touchArray[1].location(in: view) // 0.02
+//			
+//			let distanceNew = distanceSquared(location1, p2: location2)
 			
 			// Both x and y is scaled the same ammount
 //			var cameraScaledTo = distanceNew > previousDistance ? camera.xScale + 0.05 : camera.xScale - 0.05
@@ -195,7 +217,7 @@ extension GameScene {
 			
 			
 //			camera.
-			previousDistance = distanceNew
+//			previousDistance = distanceNew
 		} else if touches.count == 1 {
 			// And this is a move
 //			guard let camera = camera else {
@@ -213,27 +235,30 @@ extension GameScene {
 //			}
 		}
 		
-//		for touch in touches {
-//			let location = touch.locationInNode(self)
-//			
-//			let xLoc: Double = Double(location.x)
-//			let yLoc: Double = Double(location.y)
-//			
-//			// The grid is zero based
-//			let x: Int = (Int)(xLoc / (cellSize + cellMargin)) - 1
-//			let y: Int = (Int)(yLoc / (cellSize + cellMargin)) - 1
-//			
-//			world.update(x, y: y, cell: Cell(state: .Alive))
-//			addCell(x, y: y)
-//		}
+		for touch in touches {
+			let location = touch.location(in: self)
+			
+			let xLoc: Double = Double(location.x)
+			let yLoc: Double = Double(location.y)
+			
+			// The grid is zero based
+			let x: Int = (Int)(xLoc / (cellSize + cellMargin)) - 1
+			let y: Int = (Int)(yLoc / (cellSize + cellMargin)) - 1
+			
+			let cell = Cell(state: .alive, x: x, y: y)
+			world.update(cell: cell)
+			add(cell: cell)
+		}
 	}
 	
 
-	override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
-		super.touchesEnded(touches, withEvent: event)
+	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+		super.touchesEnded(touches, with: event)
+		isEditing = false
 	}
 	
-	override func touchesCancelled(touches: Set<UITouch>?, withEvent event: UIEvent?) {
-		super.touchesCancelled(touches, withEvent: event)
+	override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+		super.touchesCancelled(touches, with: event)
+		isEditing = false
 	}
 }

@@ -6,10 +6,10 @@ class Matrix<T> {
 		self.width = width
 		self.height = height
 
-		grid = [T](count: width * height, repeatedValue: repeatValue)
+		grid = [T](repeating: repeatValue, count: width * height)
 	}
 
-	init<U: SequenceType where U.Generator.Element == T>(width: Int, height: Int, elements: U) {
+	init<U: Sequence where U.Iterator.Element == T>(width: Int, height: Int, elements: U) {
 		self.width = width
 		self.height = height
 
@@ -34,13 +34,13 @@ class Matrix<T> {
 	}
 }
 
-extension Matrix : SequenceType {
-	func generate() -> MatrixGenerator<T> {
+extension Matrix : Sequence {
+	func makeIterator() -> MatrixGenerator<T> {
 		return MatrixGenerator(matrix: self)
 	}
 }
 
-struct MatrixGenerator<T> : GeneratorType {
+struct MatrixGenerator<T> : IteratorProtocol {
 	private let matrix: Matrix<T>
 	private var x = 0
 	private var y = 0

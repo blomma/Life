@@ -1,11 +1,19 @@
 enum CellState {
-	case Alive, Dead
+	case alive, dead
 }
 
 struct Cell {
 	let state: CellState
+	let x: Int
+	let y: Int
+}
 
-	init(state: CellState) {
-		self.state = state
+func ==(lhs: Cell, rhs: Cell) -> Bool {
+	return lhs.x == rhs.x && lhs.y == rhs.y
+}
+
+extension Cell: Hashable {
+	var hashValue: Int {
+		return x.hashValue ^ y.hashValue
 	}
 }
