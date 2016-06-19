@@ -1,6 +1,6 @@
 class Matrix<T> {
 	let width: Int, height: Int
-	private(set) var grid: [T]
+	var grid: [T]
 	
 	init(width: Int, height: Int, repeatValue: T) {
 		self.width = width

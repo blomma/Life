@@ -42,7 +42,7 @@ class GameScene: SKScene {
 		// Add initial state
 		let aliveCells: [(x: Int, y: Int)] = [(19, 20), (20, 20), (20, 21), (20, 19)]
 		for cell in aliveCells {
-			world.update(cell: Cell(state: .alive, x: cell.x, y: cell.y))
+			let _ = world.update(state: .alive, x: cell.x, y: cell.y)
 		}
 		
 		super.init(size: size)
@@ -258,8 +258,7 @@ extension GameScene {
 			let x: Int = (Int)(xLoc / (cellSize + cellMargin)) - 1
 			let y: Int = (Int)(yLoc / (cellSize + cellMargin)) - 1
 			
-			let cell = Cell(state: .alive, x: x, y: y)
-			world.update(cell: cell)
+			let cell = world.update(state: .alive, x: x, y: y)
 			add(cell: cell)
 		}
 	}

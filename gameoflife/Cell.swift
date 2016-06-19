@@ -2,10 +2,19 @@ enum CellState {
 	case alive, dead
 }
 
-struct Cell {
-	let state: CellState
+class Cell {
 	let x: Int
 	let y: Int
+	
+	var state: CellState
+	var neighbours: [Cell]
+	
+	init(state: CellState, x: Int, y: Int) {
+		self.state = state
+		self.x = x
+		self.y = y
+		self.neighbours = [Cell]()
+	}
 }
 
 func ==(lhs: Cell, rhs: Cell) -> Bool {
