@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9E82FAF81D16B411009DB8A2 /* Operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E82FAF71D16B411009DB8A2 /* Operators.swift */; };
 		9E87A1711CFF4AD80083855B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E87A1701CFF4AD80083855B /* AppDelegate.swift */; };
 		9E87A1751CFF4AD80083855B /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E87A1741CFF4AD80083855B /* GameScene.swift */; };
 		9E87A1771CFF4AD80083855B /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E87A1761CFF4AD80083855B /* GameViewController.swift */; };
@@ -19,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		9E82FAF71D16B411009DB8A2 /* Operators.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Operators.swift; path = ../Operators.swift; sourceTree = "<group>"; };
 		9E87A16D1CFF4AD80083855B /* gameoflife.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gameoflife.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9E87A1701CFF4AD80083855B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9E87A1741CFF4AD80083855B /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
@@ -62,6 +64,7 @@
 		9E87A16F1CFF4AD80083855B /* gameoflife */ = {
 			isa = PBXGroup;
 			children = (
+				9E82FAF71D16B411009DB8A2 /* Operators.swift */,
 				9EF0B5181CFF699200F355CF /* Cell.swift */,
 				9EF0B5191CFF699200F355CF /* World.swift */,
 				9E87A1701CFF4AD80083855B /* AppDelegate.swift */,
@@ -151,6 +154,7 @@
 			files = (
 				9E87A1751CFF4AD80083855B /* GameScene.swift in Sources */,
 				9EF0B51A1CFF699200F355CF /* Cell.swift in Sources */,
+				9E82FAF81D16B411009DB8A2 /* Operators.swift in Sources */,
 				9E87A1771CFF4AD80083855B /* GameViewController.swift in Sources */,
 				9E9457A81D0215BE00595DC3 /* Matrix.swift in Sources */,
 				9E87A1711CFF4AD80083855B /* AppDelegate.swift in Sources */,

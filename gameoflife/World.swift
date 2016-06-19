@@ -12,11 +12,11 @@ struct World {
 	func update() -> (dyingCells: [Cell], bornCells: [Cell]) {
 		var dyingCells: [Cell] = [Cell]()
 		var bornCells: [Cell] = [Cell]()
-		
+
 		for (x, y, state) in m {
 			let neighbours = livingNeighboursForCell(x: x, y: y)
 			if state == .alive {
-				if neighbours < 2 || neighbours > 3 {
+				if 2...3 !~= neighbours {
 					m[x, y] = .dead
 					dyingCells.append(Cell(state: .dead, x: x, y: y))
 				}
@@ -27,29 +27,35 @@ struct World {
 				}
 			}
 		}
-		
+
 		return (dyingCells, bornCells)
 	}
 
+	let neighboursDelta = [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, 1), (-1, -1), (1, -1)]
 	private func neighboursForCell(x: Int, y: Int) -> [Cell] {
-		var cells = [Cell]()
-		let neighboursDelta = [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, 1), (-1, -1), (1, -1)]
+		let neightbours = neighboursDelta
+			// TODO: This can be precalculated
+			.map { (dx, dy) -> (Int, Int) in
+				return (dx + x, dy + y)
+			}
+			// TODO: This can be precalculated
+			.filter { (nx, ny) -> Bool in
+				if 0..<m.width ~= nx && 0..<m.height ~= ny{
+					return true
+				}
 
-		for (deltaX, deltaY) in neighboursDelta {
-			let neighbourX = x + deltaX
-			let neighbourY = y + deltaY
-
-			if neighbourX < 0 || neighbourX >= m.width { continue }
-			if neighbourY < 0 || neighbourY >= m.height { continue }
-
-			let state = m[neighbourX, neighbourY]
-			cells.append(Cell(state: state, x: neighbourX, y: neighbourY))
+				return false
+			}
+			.map { (nx, ny) -> Cell in
+				return Cell(state: m[nx, ny], x: nx, y: ny)
 		}
 
-		return cells
+		return neightbours
 	}
 
 	private func livingNeighboursForCell(x: Int, y: Int) -> Int {
-		return neighboursForCell(x: x, y: y).filter{ $0.state == .alive }.count
+		return neighboursForCell(x: x, y: y)
+			.filter{ $0.state == .alive }
+			.count
 	}
 }
