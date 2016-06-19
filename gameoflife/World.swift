@@ -1,6 +1,6 @@
 struct World {
 	private let m: Matrix<CellState>
-
+	
 	init(width: Int, height: Int) {
 		m = Matrix<CellState>(width: width, height: height, repeatValue: .dead)
 	}
@@ -15,6 +15,7 @@ struct World {
 
 		for (x, y, state) in m {
 			let neighbours = livingNeighboursForCell(x: x, y: y)
+			
 			if state == .alive {
 				if 2...3 !~= neighbours {
 					m[x, y] = .dead
@@ -32,8 +33,8 @@ struct World {
 	}
 
 	let neighboursDelta = [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, 1), (-1, -1), (1, -1)]
-	private func neighboursForCell(x: Int, y: Int) -> [Cell] {
-		let neightbours = neighboursDelta
+	private func neighboursForCell(x: Int, y: Int) -> [CellState] {
+		let neighbours: [CellState] = neighboursDelta
 			// TODO: This can be precalculated
 			.map { (dx, dy) -> (Int, Int) in
 				return (dx + x, dy + y)
@@ -46,16 +47,16 @@ struct World {
 
 				return false
 			}
-			.map { (nx, ny) -> Cell in
-				return Cell(state: m[nx, ny], x: nx, y: ny)
+			.map { (nx, ny) -> CellState in
+				return m[nx, ny]
 		}
 
-		return neightbours
+		return neighbours
 	}
 
 	private func livingNeighboursForCell(x: Int, y: Int) -> Int {
 		return neighboursForCell(x: x, y: y)
-			.filter{ $0.state == .alive }
+			.filter{ $0 == .alive }
 			.count
 	}
 }
