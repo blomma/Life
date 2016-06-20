@@ -7,13 +7,14 @@ class Cell {
 	let y: Int
 	
 	var state: CellState
-	var neighbours: [Cell]
+	
+	var neighbours: [Cell] = [Cell]()
+	var active: Bool = false
 	
 	init(state: CellState, x: Int, y: Int) {
 		self.state = state
 		self.x = x
 		self.y = y
-		self.neighbours = [Cell]()
 	}
 }
 

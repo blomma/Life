@@ -21,11 +21,6 @@ class gameoflifeTests: XCTestCase {
         super.tearDown()
     }
     
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-    
     func testPerformance() {
         // This is an example of a performance test case.
 		let world: World = World(width: 80, height: 80)
@@ -36,5 +31,49 @@ class gameoflifeTests: XCTestCase {
 			}
         }
     }
-    
+
+	func testPerformanceAlive() {
+		// This is an example of a performance test case.
+		let world: World = World(width: 80, height: 80)
+		
+		for y in 0..<80 {
+			for x in 0..<80 {
+				let _ = world.update(state: .alive, x: x, y: y)
+			}
+		}
+		
+		self.measure {
+			for _ in 0...20 {
+				let _ = world.update()
+			}
+		}
+	}
+
+	func testPerformance_200_200() {
+		// This is an example of a performance test case.
+		let world: World = World(width: 200, height: 200)
+		
+		self.measure {
+			for _ in 0...20 {
+				let _ = world.update()
+			}
+		}
+	}
+	
+	func testPerformanceAlive_200_200() {
+		// This is an example of a performance test case.
+		let world: World = World(width: 200, height: 200)
+		
+		for y in 0..<200 {
+			for x in 0..<200 {
+				let _ = world.update(state: .alive, x: x, y: y)
+			}
+		}
+		
+		self.measure {
+			for _ in 0...20 {
+				let _ = world.update()
+			}
+		}
+	}
 }

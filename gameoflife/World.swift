@@ -1,6 +1,9 @@
-struct World {
+import Foundation
+
+class World {
 	private let m: Matrix<Cell>
-	
+	private var activeCells = [Cell]()
+
 	init(width: Int, height: Int) {
 		m = Matrix<Cell>(width: width, height: height, repeatValue: Cell(state: .dead, x: 0, y: 0))
 		
@@ -18,32 +21,96 @@ struct World {
 	func update(state: CellState, x: Int, y: Int) -> Cell {
 		let cell = m[x, y]
 		cell.state = state
+
+		if !cell.active {
+			cell.active = true
+			activeCells.append(cell)
+		}
+			
+		for nCell in cell.neighbours {
+			if !nCell.active {
+				nCell.active = true
+				activeCells.append(nCell)
+			}
+		}
 		
 		return cell
 	}
-	
+
 	func update() -> (dyingCells: [Cell], bornCells: [Cell]) {
 		var dyingCells: [Cell] = [Cell]()
 		var bornCells: [Cell] = [Cell]()
 		
-		for (_, _, cell) in m {
-//			var neighbours: Int = 0
-//			for cell in cell.neighbours {
-//				if cell.state == .alive {
-//					neighbours += 1
+		let g = DispatchGroup()
+		
+		let d = DispatchQueue.init(label: "work", attributes: DispatchQueueAttributes.concurrent)
+		let b = DispatchQueue.init(label: "dyingcells", attributes: DispatchQueueAttributes.serial)
+		let b2 = DispatchQueue.init(label: "borncells", attributes: DispatchQueueAttributes.serial)
+		
+		for cell in activeCells {
+			d.async(group: g, execute: {
+				cell.active = false
+				let neighbours = self.livingNeighboursForCell(cell: cell)
+				if cell.state == .alive {
+					if 2...3 !~= neighbours {
+						b.async(group: g, execute: {
+							dyingCells.append(cell)
+						})
+					}
+				} else {
+					if neighbours == 3 {
+						b2.async(group: g, execute: {
+							bornCells.append(cell)
+						})
+					}
+				}
+			})
+		}
+
+		g.wait()
+//		for cell in activeCells {
+//			cell.active = false
+//			let neighbours = self.livingNeighboursForCell(cell: cell)
+//			if cell.state == .alive {
+//				if 2...3 !~= neighbours {
+//					dyingCells.append(cell)
+//				}
+//			} else {
+//				if neighbours == 3 {
+//					bornCells.append(cell)
 //				}
 //			}
+//		}
+
+		activeCells.removeAll()
+		for cell in dyingCells {
+			cell.state = .dead
 			
-			let neighbours = livingNeighboursForCell(cell: cell)
-			if cell.state == .alive {
-				if 2...3 !~= neighbours {
-					cell.state = .dead
-					dyingCells.append(cell)
+			if !cell.active {
+				cell.active = true
+				activeCells.append(cell)
+			}
+			
+			for nCell in cell.neighbours {
+				if !nCell.active {
+					nCell.active = true
+					activeCells.append(nCell)
 				}
-			} else {
-				if neighbours == 3 {
-					cell.state = .alive
-					bornCells.append(cell)
+			}
+		}
+		
+		for cell in bornCells {
+			cell.state = .alive
+			
+			if !cell.active {
+				cell.active = true
+				activeCells.append(cell)
+			}
+			
+			for nCell in cell.neighbours {
+				if !nCell.active {
+					nCell.active = true
+					activeCells.append(nCell)
 				}
 			}
 		}
@@ -67,40 +134,23 @@ struct World {
 	
 	let neighboursDelta = [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, 1), (-1, -1), (1, -1)]
 	private func neighboursForCell(cell: Cell) -> [Cell] {
-		var neighbours: [Cell] = [Cell]()
-		for (deltaX, deltaY) in neighboursDelta {
-			let neighbourX = cell.x + deltaX
-			let neighbourY = cell.y + deltaY
-			
-			if neighbourX < 0 || neighbourX >= m.width { continue }
-			if neighbourY < 0 || neighbourY >= m.height { continue }
-			
-			neighbours.append(m[neighbourX, neighbourY])
+		let neighbours: [Cell] = neighboursDelta
+			.map { (dx, dy) -> (Int, Int) in
+				return (dx + cell.x, dy + cell.y)
+			}
+			.filter { (nx, ny) -> Bool in
+				if 0..<m.width ~= nx && 0..<m.height ~= ny {
+					return true
+				}
+				
+				return false
+			}
+			.map { (nx, ny) -> Cell in
+				return m[nx, ny]
 		}
 		
 		return neighbours
 	}
-	
-//	private func neighboursForCell(x: Int, y: Int) -> [CellState] {
-//		let neighbours: [CellState] = neighboursDelta
-//			// TODO: This can be precalculated
-//			.map { (dx, dy) -> (Int, Int) in
-//				return (dx + x, dy + y)
-//			}
-//			// TODO: This can be precalculated
-//			.filter { (nx, ny) -> Bool in
-//				if 0..<m.width ~= nx && 0..<m.height ~= ny{
-//					return true
-//				}
-//				
-//				return false
-//			}
-//			.map { (nx, ny) -> CellState in
-//				return m[nx, ny]
-//		}
-//		
-//		return neighbours
-//	}
 	
 	private func livingNeighboursForCell(cell: Cell) -> Int {
 		return cell.neighbours
