@@ -40,7 +40,8 @@ class GameScene: SKScene {
 		worldNode = SKNode()
 		
 		// Add initial state
-		let aliveCells: [(x: Int, y: Int)] = [(19, 20), (20, 20), (20, 21), (20, 19)]
+//		let aliveCells: [(x: Int, y: Int)] = [(19, 20), (20, 20), (20, 21), (20, 19)]
+		let aliveCells: [(x: Int, y: Int)] = [(19, 20), (20, 20), (21, 20)]
 		for cell in aliveCells {
 			let _ = world.update(state: .alive, x: cell.x, y: cell.y)
 		}
@@ -69,6 +70,12 @@ class GameScene: SKScene {
 		cameraNode.position = CGPoint(x: Double(size.width / 2), y: Double(size.height / 2))
 		
 		self.addChild(worldNode)
+		
+		// Setup initial state of world
+		let cells = world.livingCells()
+		for cell in cells {
+			add(cell: cell)
+		}
 	}
 	
 	func add(cell: Cell, withAnimation: Bool = true) -> Void {
@@ -88,25 +95,25 @@ class GameScene: SKScene {
 		worldNode.addChild(sprite)
 		
 		if withAnimation {
-			sprite.run(SKAction.fadeIn(withDuration: 0.6))
+			sprite.run(SKAction.fadeIn(withDuration: 0.2))
 		}
 	}
 	
 	func remove(cell: Cell, withAnimation: Bool = true) -> Void {
 		if let node: SKSpriteNode = nodesInWorld[cell] {
-			let completion = { [unowned self] in
-				let _ = self.nodesInWorld.removeValue(forKey: cell)
-			}
-			
 			if withAnimation {
-				node.run(SKAction.sequence(
-					[
-						SKAction.fadeOut(withDuration: 0.6),
-						SKAction.removeFromParent()
-					]), completion: completion)
+				let actions = SKAction.sequence([
+					SKAction.fadeOut(withDuration: 0.2),
+					SKAction.removeFromParent()
+					])
+				
+				node.run(actions, completion: { [unowned self] in
+					let _ = self.nodesInWorld.removeValue(forKey: cell)
+				})
 			} else {
-				node.run(SKAction.removeFromParent()
-					,completion: completion)
+				node.run(SKAction.removeFromParent(), completion: { [unowned self] in
+					let _ = self.nodesInWorld.removeValue(forKey: cell)
+				})
 			}
 		}
 	}
@@ -117,7 +124,7 @@ class GameScene: SKScene {
 			return
 		}
 		
-		if currentTime - lastUpdate < 1 {
+		if currentTime - lastUpdate < 0.5 {
 			return
 		}
 		
@@ -125,10 +132,10 @@ class GameScene: SKScene {
 		
 		let cells = world.update()
 		
-		// Fade out these cells
 		for dyingCell in cells.dyingCells {
 			remove(cell: dyingCell)
 		}
+		
 		for bornCell in cells.bornCells {
 			add(cell: bornCell)
 		}
