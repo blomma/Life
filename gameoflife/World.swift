@@ -2,7 +2,7 @@ import Foundation
 
 class World {
 	private let m: Matrix<Cell>
-	private var activeCells = [Cell]()
+	private var activeCells: [Cell] = []
 
 	init(width: Int, height: Int) {
 		m = Matrix<Cell>(width: width, height: height, repeatValue: Cell(state: .dead, x: 0, y: 0))
@@ -15,6 +15,14 @@ class World {
 		// Update neighbours
 		for (_, _, cell) in m {
 			cell.neighbours = neighboursForCell(cell: cell)
+		}
+	}
+	
+	func livingCells() -> [Cell] {
+		return m.filter { (x: Int, y: Int, element: Cell) -> Bool in
+			return element.state == .alive
+		}.map { (x: Int, y: Int, element: Cell) -> Cell in
+			return element
 		}
 	}
 	
@@ -38,11 +46,10 @@ class World {
 	}
 
 	func update() -> (dyingCells: [Cell], bornCells: [Cell]) {
-		var dyingCells: [Cell] = [Cell]()
-		var bornCells: [Cell] = [Cell]()
+		var dyingCells: [Cell] = []
+		var bornCells: [Cell] = []
 		
 		let g = DispatchGroup()
-		
 		let d = DispatchQueue.init(label: "work", attributes: DispatchQueueAttributes.concurrent)
 		let b = DispatchQueue.init(label: "dyingcells", attributes: DispatchQueueAttributes.serial)
 		let b2 = DispatchQueue.init(label: "borncells", attributes: DispatchQueueAttributes.serial)
