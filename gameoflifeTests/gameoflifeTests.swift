@@ -22,7 +22,6 @@ class gameoflifeTests: XCTestCase {
     }
     
     func testPerformance() {
-        // This is an example of a performance test case.
 		let world: World = World(width: 80, height: 80)
 		
         self.measure {
@@ -33,7 +32,6 @@ class gameoflifeTests: XCTestCase {
     }
 
 	func testPerformanceAlive() {
-		// This is an example of a performance test case.
 		let world: World = World(width: 80, height: 80)
 		
 		for y in 0..<80 {
@@ -48,9 +46,8 @@ class gameoflifeTests: XCTestCase {
 			}
 		}
 	}
-
+	
 	func testPerformance_200_200() {
-		// This is an example of a performance test case.
 		let world: World = World(width: 200, height: 200)
 		
 		self.measure {
@@ -61,11 +58,36 @@ class gameoflifeTests: XCTestCase {
 	}
 	
 	func testPerformanceAlive_200_200() {
-		// This is an example of a performance test case.
 		let world: World = World(width: 200, height: 200)
 		
 		for y in 0..<200 {
 			for x in 0..<200 {
+				let _ = world.update(state: .alive, x: x, y: y)
+			}
+		}
+		
+		self.measure {
+			for _ in 0...20 {
+				let _ = world.update()
+			}
+		}
+	}
+	
+	func testPerformance_82_147() {
+		let world: World = World(width: 82, height: 147)
+		
+		self.measure {
+			for _ in 0...20 {
+				let _ = world.update()
+			}
+		}
+	}
+	
+	func testPerformanceAlive_82_147() {
+		let world: World = World(width: 82, height: 147)
+		
+		for y in 0..<147 {
+			for x in 0..<82 {
 				let _ = world.update(state: .alive, x: x, y: y)
 			}
 		}
