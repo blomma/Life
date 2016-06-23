@@ -11,9 +11,9 @@
 				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
 				<dict>
 					<key>baselineAverage</key>
-					<real>0</real>
+					<real>0.00032528</real>
 					<key>baselineIntegrationDisplayName</key>
-					<string>Local Baseline</string>
+					<string>23 Jun 2016 11:55:47</string>
 				</dict>
 			</dict>
 			<key>testPerformanceAlive()</key>
@@ -21,9 +21,9 @@
 				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
 				<dict>
 					<key>baselineAverage</key>
-					<real>0.026</real>
+					<real>0.022422</real>
 					<key>baselineIntegrationDisplayName</key>
-					<string>Local Baseline</string>
+					<string>23 Jun 2016 11:55:47</string>
 				</dict>
 			</dict>
 			<key>testPerformanceAlive_200_200()</key>
@@ -31,9 +31,9 @@
 				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
 				<dict>
 					<key>baselineAverage</key>
-					<real>0.166</real>
+					<real>0.10827</real>
 					<key>baselineIntegrationDisplayName</key>
-					<string>Local Baseline</string>
+					<string>23 Jun 2016 11:55:47</string>
 				</dict>
 			</dict>
 			<key>testPerformanceAlive_82_147()</key>
@@ -41,9 +41,9 @@
 				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
 				<dict>
 					<key>baselineAverage</key>
-					<real>0.03453</real>
+					<real>0.035347</real>
 					<key>baselineIntegrationDisplayName</key>
-					<string>Local Baseline</string>
+					<string>23 Jun 2016 11:55:47</string>
 				</dict>
 			</dict>
 			<key>testPerformance_200_200()</key>
@@ -51,9 +51,9 @@
 				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
 				<dict>
 					<key>baselineAverage</key>
-					<real>0.00047593</real>
+					<real>0.00024525</real>
 					<key>baselineIntegrationDisplayName</key>
-					<string>Local Baseline</string>
+					<string>23 Jun 2016 11:55:47</string>
 				</dict>
 			</dict>
 			<key>testPerformance_82_147()</key>
@@ -61,9 +61,9 @@
 				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
 				<dict>
 					<key>baselineAverage</key>
-					<real>0.00036149</real>
+					<real>0.0003524</real>
 					<key>baselineIntegrationDisplayName</key>
-					<string>Local Baseline</string>
+					<string>23 Jun 2016 11:55:47</string>
 				</dict>
 			</dict>
 		</dict>

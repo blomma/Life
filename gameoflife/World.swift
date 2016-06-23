@@ -14,7 +14,7 @@ class World {
 		
 		// Update neighbours
 		for (_, _, cell) in m {
-			cell.neighbours = neighboursForCell(cell: cell)
+			cell.neighbours = neighbours(for: cell)
 		}
 	}
 	
@@ -49,47 +49,32 @@ class World {
 		var dyingCells: [Cell] = []
 		var bornCells: [Cell] = []
 		
-		let g = DispatchGroup()
-		let d = DispatchQueue.init(label: "work", attributes: DispatchQueueAttributes.concurrent)
-		let b = DispatchQueue.init(label: "dyingcells", attributes: DispatchQueueAttributes.serial)
-		let b2 = DispatchQueue.init(label: "borncells", attributes: DispatchQueueAttributes.serial)
+		let group: DispatchGroup = DispatchGroup()
+		
+		let dyingCellsQueue: DispatchQueue = DispatchQueue(label: "dyingCellsQueue")
+		let bornCellsQueue: DispatchQueue = DispatchQueue(label: "bornCellsQueue")
 		
 		for cell in activeCells {
-			d.async(group: g, execute: {
+			DispatchQueue.global(attributes: .qosDefault).async(group: group, execute: { 
 				cell.active = false
-				let neighbours = self.livingNeighboursForCell(cell: cell)
+				
+				let neighbours = self.livingNeighbours(for: cell)
 				if cell.state == .alive {
 					if 2...3 !~= neighbours {
-						b.async(group: g, execute: {
-							dyingCells.append(cell)
-						})
+						dyingCellsQueue.sync{dyingCells.append(cell)}
 					}
 				} else {
 					if neighbours == 3 {
-						b2.async(group: g, execute: {
-							bornCells.append(cell)
-						})
+						bornCellsQueue.sync{bornCells.append(cell)}
 					}
 				}
 			})
 		}
 
-		g.wait()
-//		for cell in activeCells {
-//			cell.active = false
-//			let neighbours = self.livingNeighboursForCell(cell: cell)
-//			if cell.state == .alive {
-//				if 2...3 !~= neighbours {
-//					dyingCells.append(cell)
-//				}
-//			} else {
-//				if neighbours == 3 {
-//					bornCells.append(cell)
-//				}
-//			}
-//		}
+		group.wait()
 
 		activeCells.removeAll()
+		
 		for cell in dyingCells {
 			cell.state = .dead
 			
@@ -140,7 +125,7 @@ class World {
 	}
 	
 	let neighboursDelta = [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, 1), (-1, -1), (1, -1)]
-	private func neighboursForCell(cell: Cell) -> [Cell] {
+	private func neighbours(for cell: Cell) -> [Cell] {
 		let neighbours: [Cell] = neighboursDelta
 			.map { (dx, dy) -> (Int, Int) in
 				return (dx + cell.x, dy + cell.y)
@@ -159,7 +144,7 @@ class World {
 		return neighbours
 	}
 	
-	private func livingNeighboursForCell(cell: Cell) -> Int {
+	private func livingNeighbours(for cell: Cell) -> Int {
 		return cell.neighbours
 			.filter{ $0.state == .alive }
 			.count

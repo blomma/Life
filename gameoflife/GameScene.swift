@@ -41,10 +41,21 @@ class GameScene: SKScene {
 		
 		// Add initial state
 //		let aliveCells: [(x: Int, y: Int)] = [(19, 20), (20, 20), (20, 21), (20, 19)]
-		let aliveCells: [(x: Int, y: Int)] = [(19, 20), (20, 20), (21, 20)]
-		for cell in aliveCells {
-			let _ = world.update(state: .alive, x: cell.x, y: cell.y)
-		}
+//		let aliveCells: [(x: Int, y: Int)] = [(19, 20), (20, 20), (21, 20)]
+//		for cell in aliveCells {
+//			let _ = world.update(state: .alive, x: cell.x, y: cell.y)
+//		}
+
+		let _ = world.update(state: .dead, x: 19, y: 20)
+		let _ = world.update(state: .alive, x: 20, y: 20)
+		
+		let _ = world.update(state: .dead, x: 19, y: 19)
+		let _ = world.update(state: .dead, x: 20, y: 19)
+		let _ = world.update(state: .alive, x: 21, y: 19)
+		
+		let _ = world.update(state: .alive, x: 19, y: 18)
+		let _ = world.update(state: .alive, x: 20, y: 18)
+		let _ = world.update(state: .alive, x: 21, y: 18)
 		
 		super.init(size: size)
 	}
@@ -118,13 +129,17 @@ class GameScene: SKScene {
 		}
 	}
 	
-	var lastUpdate: CFTimeInterval = 0
+	var lastUpdate: TimeInterval = 0
 	override func update(_ currentTime: TimeInterval) {
+		if lastUpdate == 0 {
+			lastUpdate = currentTime
+		}
+		
 		if isEditing {
 			return
 		}
 		
-		if currentTime - lastUpdate < 0.5 {
+		if currentTime - lastUpdate < 0.4 {
 			return
 		}
 		
