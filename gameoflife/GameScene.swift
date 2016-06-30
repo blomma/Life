@@ -16,11 +16,14 @@ class GameScene: SKScene {
 	let world: World
 	let worldNode: SKNode
 
-	let cellSize: Double = 4
-	let cellMargin: Double = 1
+	// The width and height of the cell
+	let cellSize: Double = 8.0
 
-	// let xOffset: Double
-	// let yOffset: Double
+	// The total margin as applied to x and y
+	let cellMargin: Double = 1.0
+
+	let xOffset: Double
+	let yOffset: Double
 
 	var cameraNode: SKCameraNode = SKCameraNode()
 
@@ -30,11 +33,28 @@ class GameScene: SKScene {
 
 	override init(size: CGSize) {
 		// Initial size
-		let maxX: Int = Int(Double(size.width)/(cellSize + cellMargin))
-		let maxY: Int = Int(Double(size.height)/(cellSize + cellMargin))
+		let width: Double = Double(size.width)
+		let height: Double = Double(size.height)
 
-		// xOffset = ((Double(size.width) - Double(maxX) * (cellSize + cellMargin)) - cellMargin) / 2
-		// yOffset = ((Double(size.height) - Double(maxY) * (cellSize + cellMargin))) / 2
+		// Make note that for this to work and be equal
+		// we need to make sure that and extra cellmargin fits to the end
+		var maxX: Int = Int(floor(width / (cellSize + cellMargin)))
+		var maxY: Int = Int(floor(height / (cellSize + cellMargin)))
+
+		let x = Double(maxX - 1)
+		let y = Double(maxY - 1)
+
+		let px: Double = (x * cellSize) + (cellSize / 2) + cellMargin + x + (cellSize / 2)
+		let py: Double = (y * cellSize) + (cellSize / 2) + cellMargin + y + (cellSize / 2)
+
+		if px == width { maxX -= 1 }
+		if py == height { maxY -= 1 }
+
+		let xo = (Double(maxX - 1) * cellSize) + (cellSize / 2) + cellMargin + Double(maxX - 1) + (cellSize / 2) + cellMargin
+		let yo = (Double(maxY - 1) * cellSize) + (cellSize / 2) + cellMargin + Double(maxY - 1) + (cellSize / 2) + cellMargin
+
+		xOffset = (width - xo) / 2
+		yOffset = (height - yo) / 2
 
 		world = World(width: maxX, height: maxY)
 		worldNode = SKNode()
@@ -78,8 +98,10 @@ class GameScene: SKScene {
 		self.addChild(cameraNode)
 		self.camera = cameraNode
 
-		cameraNode.position = CGPoint(x: Double(size.width / 2), y: Double(size.height / 2))
+		let x = Double(size.width / 2)  - xOffset //- (xOffset / 2) + (cellMargin / 2)
+		let y = Double(size.height / 2) - yOffset //- (yOffset / 2) + (cellMargin / 2)
 
+		cameraNode.position = CGPoint(x: x, y: y)
 		self.addChild(worldNode)
 
 		// Setup initial state of world
@@ -90,8 +112,11 @@ class GameScene: SKScene {
 	}
 
 	func add(cell: Cell, withAnimation: Bool = true) -> Void {
-		let px: Double = (Double(cell.x) * (cellSize + cellMargin)) + (cellSize / 2)
-		let py: Double = (Double(cell.y) * (cellSize + cellMargin)) + (cellSize / 2)
+		let cx: Double = Double(cell.x)
+		let cy: Double = Double(cell.y)
+
+		let px: Double = (cx * cellSize) + (cellSize / 2) + cellMargin + cx
+		let py: Double = (cy * cellSize) + (cellSize / 2) + cellMargin + cy
 
 		let sprite = SKSpriteNode()
 		sprite.color = UIColor.orange()
