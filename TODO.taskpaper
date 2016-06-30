@@ -1,0 +1,4 @@
+Things to work on:
+	- Position of scene
+		Should skscene be positioned with camera or just offset a sknode within
+	- Move camera around scene

@@ -49,29 +49,20 @@ class World {
 		var dyingCells: [Cell] = []
 		var bornCells: [Cell] = []
 
-		let group: DispatchGroup = DispatchGroup()
-
-		let dyingCellsQueue: DispatchQueue = DispatchQueue(label: "dyingCellsQueue")
-		let bornCellsQueue: DispatchQueue = DispatchQueue(label: "bornCellsQueue")
-
 		for cell in activeCells {
-			DispatchQueue.global(attributes: .qosDefault).async(group: group, execute: {
-				cell.active = false
+			cell.active = false
 
-				let neighbours = self.livingNeighbours(for: cell)
-				if cell.state == .alive {
-					if 2...3 !~= neighbours {
-						dyingCellsQueue.sync{dyingCells.append(cell)}
-					}
-				} else {
-					if neighbours == 3 {
-						bornCellsQueue.sync{bornCells.append(cell)}
-					}
+			let neighbours = self.livingNeighbours(for: cell)
+			if cell.state == .alive {
+				if 2...3 !~= neighbours {
+					dyingCells.append(cell)
 				}
-			})
+			} else {
+				if neighbours == 3 {
+					bornCells.append(cell)
+				}
+			}
 		}
-
-		group.wait()
 
 		activeCells.removeAll()
 
