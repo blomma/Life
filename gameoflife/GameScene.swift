@@ -4,7 +4,6 @@ import Darwin
 class GameScene: SKScene {
 	private struct Action {
 		static let pinch = #selector(GameScene.pinch(_:))
-		static let rotate = #selector(GameScene.rotate(_:))
 	}
 
 	var nodesInWorld: Dictionary<Cell, SKSpriteNode> = Dictionary<Cell, SKSpriteNode>()
@@ -25,10 +24,9 @@ class GameScene: SKScene {
 	let xOffset: Double
 	let yOffset: Double
 
-	var cameraNode: SKCameraNode = SKCameraNode()
-
 	var pinch: UIPinchGestureRecognizer?
-	var rotation: UIRotationGestureRecognizer?
+	var previousScale: CGFloat = 0
+
 	var isEditing: Bool = false
 
 	override init(size: CGSize) {
@@ -87,21 +85,12 @@ class GameScene: SKScene {
 	override func didMove(to view: SKView) {
 		super.didMove(to: view)
 
-		//		let pinch = UIPinchGestureRecognizer(target: self, action: Action.pinch)
-		//		self.pinch = pinch
-		//		self.view?.addGestureRecognizer(pinch)
-		//
-		//		let rotation = UIRotationGestureRecognizer(target: self, action: Action.rotate)
-		//		self.rotation = rotation
-		//		self.view?.addGestureRecognizer(rotation)
+		let pinch = UIPinchGestureRecognizer(target: self, action: Action.pinch)
+		self.pinch = pinch
+		self.view?.addGestureRecognizer(pinch)
 
-		self.addChild(cameraNode)
-		self.camera = cameraNode
-
-		let x = Double(size.width / 2)  - xOffset //- (xOffset / 2) + (cellMargin / 2)
-		let y = Double(size.height / 2) - yOffset //- (yOffset / 2) + (cellMargin / 2)
-
-		cameraNode.position = CGPoint(x: x, y: y)
+		worldNode.position.x += CGFloat(xOffset)
+		worldNode.position.y += CGFloat(yOffset)
 		self.addChild(worldNode)
 
 		// Setup initial state of world
@@ -182,142 +171,74 @@ class GameScene: SKScene {
 	}
 }
 
+// MARK: - Touches
 extension GameScene {
+	func CGPointAdd(point1: CGPoint, point2: CGPoint) -> CGPoint {
+		return CGPoint(x: point1.x + point2.x, y: point1.y + point2.y)
+	}
+
+	func CGPointSubtract(point1: CGPoint, point2: CGPoint) -> CGPoint {
+		return CGPoint(x: point1.x - point2.x, y: point1.y - point2.y)
+	}
+
 	func pinch(_ recognizer: UIPinchGestureRecognizer) -> Void {
-		guard let camera = camera else {
-			return
-		}
+		switch recognizer.state {
+		case .began:
+			previousScale = recognizer.scale
+		case .changed:
+			var p = recognizer.location(in: self.view)
+			p = convertPoint(fromView: p)
 
-		var cameraScaledTo = recognizer.scale < 0 ? 0 : recognizer.scale
-		cameraScaledTo = cameraScaledTo < 0 ? 0 : cameraScaledTo
-		camera.xScale = cameraScaledTo
-		camera.yScale = cameraScaledTo
-	}
+			var scaleTo: CGFloat = 0
+			let d = abs(previousScale - recognizer.scale)
+			if recognizer.scale < previousScale {
+				scaleTo = worldNode.xScale - d
+			} else {
+				scaleTo = worldNode.xScale + d
+			}
 
-	func rotate(_ recognizer: UIRotationGestureRecognizer) -> Void {
-		guard let camera = camera else {
-			return
-		}
+			previousScale = recognizer.scale
 
-		let rotateAction = SKAction.rotate(toAngle: recognizer.rotation, duration: 0)
-		camera.removeAllActions()
-		camera.run(rotateAction)
-	}
+			scaleTo = scaleTo < 1 ? 1 : scaleTo
 
-	func distanceSquared(p1: CGPoint, p2: CGPoint) -> Double {
-		return Double(pow(p2.x - p1.x, 2) + pow(p2.y - p1.y, 2))
-	}
+			let anchorPointInScene = convert(p, from: worldNode)
+			let translationOfAnchorInScene = CGPointSubtract(point1: p, point2: anchorPointInScene)
 
-	func vectorFromPoint(firstPoint: CGPoint, toPoint:CGPoint) -> CGPoint {
-		return CGPoint(x: toPoint.x - firstPoint.x, y: toPoint.y - firstPoint.y)
-	}
-
-	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		isEditing = true
-		//		if touches.count == 2 {
-		//			guard let camera = camera,let view = self.view else {
-		//				return
-		//			}
-		//
-		//			let touchArray = Array(touches)
-		//			let location1 = touchArray[0].location(in: self.view)
-		//			let location2 = touchArray[1].location(in: self.view)
-		//
-		////			let x = (max(location1.x, location2.x) - min(location1.x, location2.x)) / 2 + min(location1.x, location2.x)
-		////			let y = (max(location1.y, location2.y) - min(location1.y, location2.y)) / 2 + min(location1.y, location2.y)
-		////
-		////			camera.position = CGPoint(x: x, y: y)
-		//
-		//			previousDistance = distanceSquared(location1, p2: location2)
-		//
-		//			deltaAngle = atan2(location1.y - view.center.y, location1.x - view.center.x)
-		//		} else if touches.count == 1 {
-		//			previousPoint = (touches.first?.location(in: self))!
-		//
-		////			cameraNode.runAction(SKAction.moveTo(previousPoint, duration: 0.25))
-		//		}
-	}
-
-	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-		if touches.count == 2 {
-			// This is a zoom andor rotate
-			//			guard let camera = camera, let view = self.view else {
-			//				return
-			//			}
-			//
-			//			let touchArray = Array(touches)
-			//			let location1 = touchArray[0].location(in: view)
-			//			let location2 = touchArray[1].location(in: view) // 0.02
-			//
-			//			let distanceNew = distanceSquared(location1, p2: location2)
-
-			// Both x and y is scaled the same ammount
-			//			var cameraScaledTo = distanceNew > previousDistance ? camera.xScale + 0.05 : camera.xScale - 0.05
-			//			cameraScaledTo = cameraScaledTo < 0 ? 0 : cameraScaledTo
-			//			camera.xScale = cameraScaledTo
-			//			camera.yScale = cameraScaledTo
-
-			//			let zoomAction = SKAction.scaleTo(cameraScaledTo, duration: 0)
-
-			//			let previousLocation1 = touchArray[0].previousLocationInView(view)
-			//			let previousDifference = vectorFromPoint(camera.position, toPoint: previousLocation1)
-			//			let previousRoation = atan2(previousDifference.y, previousDifference.x)
-			//			let currentDifference = vectorFromPoint(camera.position, toPoint: location1)
-			//			let currentRotation = atan2(currentDifference.y, currentDifference.x)
-			//			let angle = currentRotation - previousRoation
-
-			//			let angle = atan2(location1.y - view.center.y , location1.x - view.center.x)
-			//			let angleDifference = deltaAngle - angle
-			//			print("\(angleDifference)")
-			//			let rotateAction = SKAction.rotateByAngle(0, duration: 0)
-
-			//			let s = SKAction.sequence([zoomAction, rotateAction])
-			//			cameraNode.removeAllActions()
-			//			cameraNode.runAction(s)
-
-
-			//			camera.
-			//			previousDistance = distanceNew
-		} else if touches.count == 1 {
-			// And this is a move
-			//			guard let camera = camera else {
-			//				return
-			//			}
-			//
-			//			for touch in touches {
-			//				let location = touch.locationInNode(self)
-			//				let deltaX = previousPoint.x - location.x
-			//				let deltaY = previousPoint.y - location.y
-			//				previousPoint = location
-			//
-			//				camera.position.x += deltaX
-			//				camera.position.y += deltaY
-			//			}
-		}
-
-		for touch in touches {
-			let location = touch.location(in: self)
-
-			let xLoc: Double = Double(location.x)
-			let yLoc: Double = Double(location.y)
-
-			// The grid is zero based
-			let x: Int = (Int)(xLoc / (cellSize + cellMargin)) - 1
-			let y: Int = (Int)(yLoc / (cellSize + cellMargin)) - 1
-
-			let cell = world.update(state: .alive, x: x, y: y)
-			add(cell: cell)
+			worldNode.setScale(scaleTo)
+			worldNode.position = CGPointAdd(point1: worldNode.position, point2: translationOfAnchorInScene)
+		default:
+			break
 		}
 	}
 
-
-	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-		super.touchesEnded(touches, with: event)
-		isEditing = false
-	}
-
-	override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-		super.touchesCancelled(touches, with: event)
-		isEditing = false
-	}
+//	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+//		isEditing = true
+//	}
+//
+//	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+//		for touch in touches {
+//			let location = touch.location(in: self)
+//
+//			let xLoc: Double = Double(location.x)
+//			let yLoc: Double = Double(location.y)
+//
+//			// The grid is zero based
+//			let x: Int = (Int)(xLoc / (cellSize + cellMargin)) - 1
+//			let y: Int = (Int)(yLoc / (cellSize + cellMargin)) - 1
+//
+//			let cell = world.update(state: .alive, x: x, y: y)
+//			add(cell: cell)
+//		}
+//	}
+//
+//
+//	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+//		super.touchesEnded(touches, with: event)
+//		isEditing = false
+//	}
+//
+//	override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+//		super.touchesCancelled(touches, with: event)
+//		isEditing = false
+//	}
 }
