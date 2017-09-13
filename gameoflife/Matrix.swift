@@ -9,7 +9,7 @@ class Matrix<T> {
 		grid = [T](repeating: repeatValue, count: width * height)
 	}
 
-	init<U: Sequence where U.Iterator.Element == T>(width: Int, height: Int, elements: U) {
+	init<U: Sequence>(width: Int, height: Int, elements: U) where U.Iterator.Element == T {
 		self.width = width
 		self.height = height
 
@@ -41,9 +41,9 @@ extension Matrix : Sequence {
 }
 
 struct MatrixGenerator<T> : IteratorProtocol {
-	private let matrix: Matrix<T>
-	private var x = 0
-	private var y = 0
+	fileprivate let matrix: Matrix<T>
+	fileprivate var x = 0
+	fileprivate var y = 0
 
 	init(matrix: Matrix<T>) {
 		self.matrix = matrix

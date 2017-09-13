@@ -2,7 +2,7 @@ import SpriteKit
 import Darwin
 
 class GameScene: SKScene {
-	private struct Action {
+	fileprivate struct Action {
 		static let pinch = #selector(GameScene.pinch(_:))
 	}
 
@@ -64,16 +64,16 @@ class GameScene: SKScene {
 //			let _ = world.update(state: .alive, x: cell.x, y: cell.y)
 //		}
 
-		let _ = world.update(state: .dead, x: 19, y: 20)
-		let _ = world.update(state: .alive, x: 20, y: 20)
+		let _ = world.update(.dead, x: 19, y: 20)
+		let _ = world.update(.alive, x: 20, y: 20)
 
-		let _ = world.update(state: .dead, x: 19, y: 19)
-		let _ = world.update(state: .dead, x: 20, y: 19)
-		let _ = world.update(state: .alive, x: 21, y: 19)
+		let _ = world.update(.dead, x: 19, y: 19)
+		let _ = world.update(.dead, x: 20, y: 19)
+		let _ = world.update(.alive, x: 21, y: 19)
 
-		let _ = world.update(state: .alive, x: 19, y: 18)
-		let _ = world.update(state: .alive, x: 20, y: 18)
-		let _ = world.update(state: .alive, x: 21, y: 18)
+		let _ = world.update(.alive, x: 19, y: 18)
+		let _ = world.update(.alive, x: 20, y: 18)
+		let _ = world.update(.alive, x: 21, y: 18)
 
 		super.init(size: size)
 	}
@@ -96,11 +96,11 @@ class GameScene: SKScene {
 		// Setup initial state of world
 		let cells = world.livingCells()
 		for cell in cells {
-			add(cell: cell)
+			add(cell)
 		}
 	}
 
-	func add(cell: Cell, withAnimation: Bool = true) -> Void {
+	func add(_ cell: Cell, withAnimation: Bool = true) -> Void {
 		let cx: Double = Double(cell.x)
 		let cy: Double = Double(cell.y)
 
@@ -108,7 +108,7 @@ class GameScene: SKScene {
 		let py: Double = (cy * cellSize) + (cellSize / 2) + cellMargin + cy
 
 		let sprite = SKSpriteNode()
-		sprite.color = UIColor.orange()
+		sprite.color = UIColor.orange
 		sprite.size = CGSize(width: cellSize, height: cellSize)
 		sprite.position = CGPoint(x: px, y: py)
 		if withAnimation {
@@ -124,7 +124,7 @@ class GameScene: SKScene {
 		}
 	}
 
-	func remove(cell: Cell, withAnimation: Bool = true) -> Void {
+	func remove(_ cell: Cell, withAnimation: Bool = true) -> Void {
 		if let node: SKSpriteNode = nodesInWorld[cell] {
 			if withAnimation {
 				let actions = SKAction.sequence([
@@ -162,26 +162,26 @@ class GameScene: SKScene {
 		let cells = world.update()
 
 		for dyingCell in cells.dyingCells {
-			remove(cell: dyingCell)
+			remove(dyingCell)
 		}
 
 		for bornCell in cells.bornCells {
-			add(cell: bornCell)
+			add(bornCell)
 		}
 	}
 }
 
 // MARK: - Touches
 extension GameScene {
-	func CGPointAdd(point1: CGPoint, point2: CGPoint) -> CGPoint {
+	func CGPointAdd(_ point1: CGPoint, point2: CGPoint) -> CGPoint {
 		return CGPoint(x: point1.x + point2.x, y: point1.y + point2.y)
 	}
 
-	func CGPointSubtract(point1: CGPoint, point2: CGPoint) -> CGPoint {
+	func CGPointSubtract(_ point1: CGPoint, point2: CGPoint) -> CGPoint {
 		return CGPoint(x: point1.x - point2.x, y: point1.y - point2.y)
 	}
 
-	func pinch(_ recognizer: UIPinchGestureRecognizer) -> Void {
+	@objc func pinch(_ recognizer: UIPinchGestureRecognizer) -> Void {
 		switch recognizer.state {
 		case .began:
 			previousScale = recognizer.scale
@@ -202,10 +202,10 @@ extension GameScene {
 			scaleTo = scaleTo < 1 ? 1 : scaleTo
 
 			let anchorPointInScene = convert(p, from: worldNode)
-			let translationOfAnchorInScene = CGPointSubtract(point1: p, point2: anchorPointInScene)
+			let translationOfAnchorInScene = CGPointSubtract(p, point2: anchorPointInScene)
 
 			worldNode.setScale(scaleTo)
-			worldNode.position = CGPointAdd(point1: worldNode.position, point2: translationOfAnchorInScene)
+			worldNode.position = CGPointAdd(worldNode.position, point2: translationOfAnchorInScene)
 		default:
 			break
 		}

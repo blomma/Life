@@ -36,7 +36,7 @@ class gameoflifeTests: XCTestCase {
 		
 		for y in 0..<80 {
 			for x in 0..<80 {
-				let _ = world.update(state: .alive, x: x, y: y)
+				let _ = world.update(.alive, x: x, y: y)
 			}
 		}
 		
@@ -62,7 +62,7 @@ class gameoflifeTests: XCTestCase {
 		
 		for y in 0..<200 {
 			for x in 0..<200 {
-				let _ = world.update(state: .alive, x: x, y: y)
+				let _ = world.update(.alive, x: x, y: y)
 			}
 		}
 		
@@ -88,7 +88,7 @@ class gameoflifeTests: XCTestCase {
 		
 		for y in 0..<147 {
 			for x in 0..<82 {
-				let _ = world.update(state: .alive, x: x, y: y)
+				let _ = world.update(.alive, x: x, y: y)
 			}
 		}
 		

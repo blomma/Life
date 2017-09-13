@@ -1,8 +1,8 @@
 import Foundation
 
 class World {
-	private let m: Matrix<Cell>
-	private var activeCells: [Cell] = []
+	fileprivate let m: Matrix<Cell>
+	fileprivate var activeCells: [Cell] = []
 
 	init(width: Int, height: Int) {
 		m = Matrix<Cell>(width: width, height: height, repeatValue: Cell(state: .dead, x: 0, y: 0))
@@ -19,14 +19,18 @@ class World {
 	}
 
 	func livingCells() -> [Cell] {
-		return m.filter { (x: Int, y: Int, element: Cell) -> Bool in
+		return m.filter { (arg: (x: Int, y: Int, element: Cell)) -> Bool in
+			let (_, _, element) = arg
 			return element.state == .alive
-		}.map { (x: Int, y: Int, element: Cell) -> Cell in
-			return element
-		}
+		}.reduce([Cell](), { (result: [Cell], next: (x: Int, y: Int, element: Cell)) -> [Cell] in
+				var r = result
+				r.append(next.element)
+				
+				return r
+		})
 	}
 
-	func update(state: CellState, x: Int, y: Int) -> Cell {
+	func update(_ state: CellState, x: Int, y: Int) -> Cell {
 		let cell = m[x, y]
 		cell.state = state
 
@@ -54,7 +58,7 @@ class World {
 
 			let neighbours = self.livingNeighbours(for: cell)
 			if cell.state == .alive {
-				if 2...3 !~= neighbours {
+				if !(2...3 ~= neighbours) {
 					dyingCells.append(cell)
 				}
 			} else {
@@ -101,53 +105,59 @@ class World {
 		return (dyingCells, bornCells)
 	}
 
-	func memoize<T:Hashable, U>(fn : (T) -> U) -> (T) -> U {
-		var cache = [T:U]()
-		return { val in
-			if let value = cache[val] {
-				return value
-			}
+//	func memoize<T:Hashable, U>(_ fn : @escaping (T) -> U) -> (T) -> U {
+//		var cache = [T:U]()
+//		return { val in
+//			if let value = cache[val] {
+//				return value
+//			}
+//
+//			let newValue = fn(val)
+//			cache[val] = newValue
+//
+//			return newValue
+//		}
+//	}
+}
 
-			let newValue = fn(val)
-			cache[val] = newValue
-
-			return newValue
-		}
-	}
-
-	let neighboursDelta = [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, 1), (-1, -1), (1, -1)]
-	private func neighbours(for cell: Cell) -> [Cell] {
+extension World {
+	fileprivate func neighbours(for cell: Cell) -> [Cell] {
+		let neighboursDelta = [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, 1), (-1, -1), (1, -1)]
 		let neighbours: [Cell] = neighboursDelta
-			.map { (dx, dy) -> Cell in
-				var nx = dx + cell.x
-				var ny = dy + cell.y
-
+			.reduce([Cell](), { (result: [Cell], next: (dx: Int, dy: Int)) -> [Cell] in
+				var nx = next.dx + cell.x
+				var ny = next.dy + cell.y
+				
 				// Wrap it around
 				if nx >= m.width {
 					nx = 0
 				}
-
+				
 				if nx < 0 {
 					nx = m.width - 1
 				}
-
+				
 				if ny >= m.height {
 					ny = 0
 				}
-
+				
 				if ny < 0 {
 					ny = m.height - 1
 				}
-
-				return m[nx, ny]
-			}
-
+				
+				var r = result
+				r.append(m[nx, ny])
+				
+				return r
+			})
+		
 		return neighbours
 	}
-
-	private func livingNeighbours(for cell: Cell) -> Int {
+	
+	fileprivate func livingNeighbours(for cell: Cell) -> Int {
 		return cell.neighbours
 			.filter{ $0.state == .alive }
 			.count
 	}
 }
+
