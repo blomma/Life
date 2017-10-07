@@ -108,7 +108,7 @@ class GameScene: SKScene {
 		let py: Double = (cy * cellSize) + (cellSize / 2) + cellMargin + cy
 
 		let sprite = SKSpriteNode()
-		sprite.color = UIColor.orange()
+		sprite.color = UIColor.orange
 		sprite.size = CGSize(width: cellSize, height: cellSize)
 		sprite.position = CGPoint(x: px, y: py)
 		if withAnimation {
@@ -181,7 +181,7 @@ extension GameScene {
 		return CGPoint(x: point1.x - point2.x, y: point1.y - point2.y)
 	}
 
-	func pinch(_ recognizer: UIPinchGestureRecognizer) -> Void {
+	@objc func pinch(_ recognizer: UIPinchGestureRecognizer) -> Void {
 		switch recognizer.state {
 		case .began:
 			previousScale = recognizer.scale

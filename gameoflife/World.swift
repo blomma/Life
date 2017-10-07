@@ -101,7 +101,7 @@ class World {
 		return (dyingCells, bornCells)
 	}
 
-	func memoize<T:Hashable, U>(fn : (T) -> U) -> (T) -> U {
+	func memoize<T:Hashable, U>(fn : @escaping (T) -> U) -> (T) -> U {
 		var cache = [T:U]()
 		return { val in
 			if let value = cache[val] {

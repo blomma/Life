@@ -9,7 +9,7 @@ class Matrix<T> {
 		grid = [T](repeating: repeatValue, count: width * height)
 	}
 
-	init<U: Sequence where U.Iterator.Element == T>(width: Int, height: Int, elements: U) {
+	init<U: Sequence>(width: Int, height: Int, elements: U) where U.Iterator.Element == T {
 		self.width = width
 		self.height = height
 
