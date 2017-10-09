@@ -9,7 +9,6 @@ class Cell {
 	var state: CellState
 
 	var neighbours: [Cell] = [Cell]()
-	var active: Bool = false
 
 	init(state: CellState, x: Int, y: Int) {
 		self.state = state

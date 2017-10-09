@@ -21,81 +21,52 @@ class gameoflifeTests: XCTestCase {
         super.tearDown()
     }
     
+    private func setUpWorld(width: Int, height: Int) -> World {
+        let world: World = World(width: width, height: height)
+        
+        let _ = world.update(state: .dead, x: 19, y: 20)
+        let _ = world.update(state: .alive, x: 20, y: 20)
+        
+        let _ = world.update(state: .dead, x: 19, y: 19)
+        let _ = world.update(state: .dead, x: 20, y: 19)
+        let _ = world.update(state: .alive, x: 21, y: 19)
+        
+        let _ = world.update(state: .alive, x: 19, y: 18)
+        let _ = world.update(state: .alive, x: 20, y: 18)
+        let _ = world.update(state: .alive, x: 21, y: 18)
+
+        return world;
+    }
+    
     func testPerformance() {
 		let world: World = World(width: 80, height: 80)
 		
         self.measure {
-			for _ in 0...20 {
-				let _ = world.update()
-			}
+            let _ = world.update()
         }
     }
 
 	func testPerformanceAlive() {
-		let world: World = World(width: 80, height: 80)
+		let world = setUpWorld(width: 80, height: 80)
 		
-		for y in 0..<80 {
-			for x in 0..<80 {
-				let _ = world.update(state: .alive, x: x, y: y)
-			}
-		}
-		
-		self.measure {
-			for _ in 0...20 {
-				let _ = world.update()
-			}
-		}
-	}
-	
-	func testPerformance_200_200() {
-		let world: World = World(width: 200, height: 200)
-		
-		self.measure {
-			for _ in 0...20 {
-				let _ = world.update()
-			}
-		}
+        self.measure {
+            let _ = world.update()
+        }
 	}
 	
 	func testPerformanceAlive_200_200() {
-		let world: World = World(width: 200, height: 200)
+		let world = setUpWorld(width: 200, height: 200)
 		
-		for y in 0..<200 {
-			for x in 0..<200 {
-				let _ = world.update(state: .alive, x: x, y: y)
-			}
-		}
-		
-		self.measure {
-			for _ in 0...20 {
-				let _ = world.update()
-			}
-		}
+        self.measure {
+            let _ = world.update()
+        }
 	}
-	
-	func testPerformance_82_147() {
-		let world: World = World(width: 82, height: 147)
 		
-		self.measure {
-			for _ in 0...20 {
-				let _ = world.update()
-			}
-		}
-	}
-	
 	func testPerformanceAlive_82_147() {
-		let world: World = World(width: 82, height: 147)
+		let world = setUpWorld(width: 82, height: 147)
 		
-		for y in 0..<147 {
-			for x in 0..<82 {
-				let _ = world.update(state: .alive, x: x, y: y)
-			}
-		}
-		
-		self.measure {
-			for _ in 0...20 {
-				let _ = world.update()
-			}
-		}
+        self.measure {
+            let _ = world.update()
+        }
 	}
 }

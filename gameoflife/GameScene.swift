@@ -6,7 +6,7 @@ class GameScene: SKScene {
 		static let pinch = #selector(GameScene.pinch(_:))
 	}
 
-	var nodesInWorld: Dictionary<Cell, SKSpriteNode> = Dictionary<Cell, SKSpriteNode>()
+	var nodesInWorld = Dictionary<Int, SKSpriteNode>()
 
 	var previousDistance: Double = 0
 	var previousPoint: CGPoint = CGPoint.zero
@@ -57,13 +57,6 @@ class GameScene: SKScene {
 		world = World(width: maxX, height: maxY)
 		worldNode = SKNode()
 
-		// Add initial state
-//		let aliveCells: [(x: Int, y: Int)] = [(19, 20), (20, 20), (20, 21), (20, 19)]
-//		let aliveCells: [(x: Int, y: Int)] = [(19, 20), (20, 20), (21, 20)]
-//		for cell in aliveCells {
-//			let _ = world.update(state: .alive, x: cell.x, y: cell.y)
-//		}
-
 		let _ = world.update(state: .dead, x: 19, y: 20)
 		let _ = world.update(state: .alive, x: 20, y: 20)
 
@@ -85,9 +78,9 @@ class GameScene: SKScene {
 	override func didMove(to view: SKView) {
 		super.didMove(to: view)
 
-		let pinch = UIPinchGestureRecognizer(target: self, action: Action.pinch)
-		self.pinch = pinch
-		self.view?.addGestureRecognizer(pinch)
+//        let pinch = UIPinchGestureRecognizer(target: self, action: Action.pinch)
+//        self.pinch = pinch
+//        self.view?.addGestureRecognizer(pinch)
 
 		worldNode.position.x += CGFloat(xOffset)
 		worldNode.position.y += CGFloat(yOffset)
@@ -107,39 +100,42 @@ class GameScene: SKScene {
 		let px: Double = (cx * cellSize) + (cellSize / 2) + cellMargin + cx
 		let py: Double = (cy * cellSize) + (cellSize / 2) + cellMargin + cy
 
-		let sprite = SKSpriteNode()
-		sprite.color = UIColor.orange
-		sprite.size = CGSize(width: cellSize, height: cellSize)
-		sprite.position = CGPoint(x: px, y: py)
+		let node = SKSpriteNode()
+		node.color = UIColor.orange
+		node.size = CGSize(width: cellSize, height: cellSize)
+		node.position = CGPoint(x: px, y: py)
 		if withAnimation {
-			sprite.alpha = 0
+			node.alpha = 0
 		}
 
-		nodesInWorld[cell] = sprite
+		nodesInWorld[cell.x * 1000 + cell.y] = node
 
-		worldNode.addChild(sprite)
+		worldNode.addChild(node)
 
-		if withAnimation {
-			sprite.run(SKAction.fadeIn(withDuration: 0.2))
-		}
+        if withAnimation {
+            node.removeAllActions()
+            node.run(SKAction.fadeIn(withDuration: 0.2))
+        }
 	}
 
 	func remove(cell: Cell, withAnimation: Bool = true) -> Void {
-		if let node: SKSpriteNode = nodesInWorld[cell] {
-			if withAnimation {
-				let actions = SKAction.sequence([
-					SKAction.fadeOut(withDuration: 0.2),
-					SKAction.removeFromParent()
-					])
+		if let node: SKSpriteNode = nodesInWorld[cell.x * 1000 + cell.y] {
+            if withAnimation {
+                node.removeAllActions()
+                let actions = SKAction.sequence([
+                    SKAction.fadeOut(withDuration: 0.2),
+                    SKAction.removeFromParent()
+                    ])
 
-				node.run(actions, completion: { [unowned self] in
-					let _ = self.nodesInWorld.removeValue(forKey: cell)
-				})
-			} else {
+                node.run(actions, completion: { [unowned self] in
+                    let _ = self.nodesInWorld.removeValue(forKey: cell.x * 1000 + cell.y)
+                })
+            } else {
+                node.removeAllActions()
 				node.run(SKAction.removeFromParent(), completion: { [unowned self] in
-					let _ = self.nodesInWorld.removeValue(forKey: cell)
+					let _ = self.nodesInWorld.removeValue(forKey: cell.x * 1000 + cell.y)
 				})
-			}
+            }
 		}
 	}
 
@@ -211,34 +207,34 @@ extension GameScene {
 		}
 	}
 
-//	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-//		isEditing = true
-//	}
-//
-//	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-//		for touch in touches {
-//			let location = touch.location(in: self)
-//
-//			let xLoc: Double = Double(location.x)
-//			let yLoc: Double = Double(location.y)
-//
-//			// The grid is zero based
-//			let x: Int = (Int)(xLoc / (cellSize + cellMargin)) - 1
-//			let y: Int = (Int)(yLoc / (cellSize + cellMargin)) - 1
-//
-//			let cell = world.update(state: .alive, x: x, y: y)
-//			add(cell: cell)
-//		}
-//	}
-//
-//
-//	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-//		super.touchesEnded(touches, with: event)
-//		isEditing = false
-//	}
-//
-//	override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-//		super.touchesCancelled(touches, with: event)
-//		isEditing = false
-//	}
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        isEditing = true
+    }
+
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for touch in touches {
+            let location = touch.location(in: self)
+
+            let xLoc: Double = Double(location.x)
+            let yLoc: Double = Double(location.y)
+
+            // The grid is zero based
+            let x: Int = (Int)(xLoc / (cellSize + cellMargin))
+            let y: Int = (Int)(yLoc / (cellSize + cellMargin))
+
+            let cell = world.update(state: .alive, x: x, y: y)
+            add(cell: cell)
+        }
+    }
+
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesEnded(touches, with: event)
+        isEditing = false
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesCancelled(touches, with: event)
+        isEditing = false
+    }
 }

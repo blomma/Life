@@ -2,9 +2,14 @@ import Foundation
 
 class World {
 	private let m: Matrix<Cell>
-	private var activeCells: [Cell] = []
-
+	private var activeCells: Set<Cell> = []
+    public var width: Int
+    public var height: Int
+    
 	init(width: Int, height: Int) {
+        self.width = width
+        self.height = height
+        
 		m = Matrix<Cell>(width: width, height: height, repeatValue: Cell(state: .dead, x: 0, y: 0))
 
 		// We walk the matrix
@@ -30,17 +35,11 @@ class World {
 		let cell = m[x, y]
 		cell.state = state
 
-		if !cell.active {
-			cell.active = true
-			activeCells.append(cell)
-		}
+        activeCells.insert(cell)
 
-		for nCell in cell.neighbours {
-			if !nCell.active {
-				nCell.active = true
-				activeCells.append(nCell)
-			}
-		}
+        for nCell in cell.neighbours {
+            activeCells.insert(nCell)
+        }
 
 		return cell
 	}
@@ -50,8 +49,6 @@ class World {
 		var bornCells: [Cell] = []
 
 		for cell in activeCells {
-			cell.active = false
-
 			let neighbours = self.livingNeighbours(for: cell)
 			if cell.state == .alive {
 				if 2...3 !~= neighbours {
@@ -69,51 +66,39 @@ class World {
 		for cell in dyingCells {
 			cell.state = .dead
 
-			if !cell.active {
-				cell.active = true
-				activeCells.append(cell)
-			}
+            activeCells.insert(cell)
 
 			for nCell in cell.neighbours {
-				if !nCell.active {
-					nCell.active = true
-					activeCells.append(nCell)
-				}
+                activeCells.insert(nCell)
 			}
 		}
 
 		for cell in bornCells {
 			cell.state = .alive
 
-			if !cell.active {
-				cell.active = true
-				activeCells.append(cell)
-			}
+            activeCells.insert(cell)
 
 			for nCell in cell.neighbours {
-				if !nCell.active {
-					nCell.active = true
-					activeCells.append(nCell)
-				}
+                activeCells.insert(nCell)
 			}
 		}
 
 		return (dyingCells, bornCells)
 	}
 
-	func memoize<T:Hashable, U>(fn : @escaping (T) -> U) -> (T) -> U {
-		var cache = [T:U]()
-		return { val in
-			if let value = cache[val] {
-				return value
-			}
-
-			let newValue = fn(val)
-			cache[val] = newValue
-
-			return newValue
-		}
-	}
+//    func memoize<T:Hashable, U>(fn : @escaping (T) -> U) -> (T) -> U {
+//        var cache = [T:U]()
+//        return { val in
+//            if let value = cache[val] {
+//                return value
+//            }
+//
+//            let newValue = fn(val)
+//            cache[val] = newValue
+//
+//            return newValue
+//        }
+//    }
 
 	let neighboursDelta = [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, 1), (-1, -1), (1, -1)]
 	private func neighbours(for cell: Cell) -> [Cell] {
