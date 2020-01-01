@@ -40,7 +40,8 @@ class gameoflifeTests: XCTestCase {
     
     func testPerformance() {
 		let world: World = World(width: 80, height: 80)
-		
+        let _ = world.update()
+
         self.measure {
             let _ = world.update()
         }
@@ -48,7 +49,8 @@ class gameoflifeTests: XCTestCase {
 
 	func testPerformanceAlive() {
 		let world = setUpWorld(width: 80, height: 80)
-		
+        let _ = world.update()
+
         self.measure {
             let _ = world.update()
         }
@@ -56,15 +58,26 @@ class gameoflifeTests: XCTestCase {
 	
 	func testPerformanceAlive_200_200() {
 		let world = setUpWorld(width: 200, height: 200)
-		
+        let _ = world.update()
+
         self.measure {
             let _ = world.update()
         }
 	}
 		
+    func testPerformanceAlive_800_800() {
+        let world = setUpWorld(width: 800, height: 800)
+        let _ = world.update()
+        
+        self.measure {
+            let _ = world.update()
+        }
+    }
+    
 	func testPerformanceAlive_82_147() {
 		let world = setUpWorld(width: 82, height: 147)
-		
+        let _ = world.update()
+
         self.measure {
             let _ = world.update()
         }

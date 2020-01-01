@@ -57,13 +57,8 @@ class GameScene: SKScene {
 		world = World(width: maxX, height: maxY)
 		worldNode = SKNode()
 
-		let _ = world.update(state: .dead, x: 19, y: 20)
 		let _ = world.update(state: .alive, x: 20, y: 20)
-
-		let _ = world.update(state: .dead, x: 19, y: 19)
-		let _ = world.update(state: .dead, x: 20, y: 19)
 		let _ = world.update(state: .alive, x: 21, y: 19)
-
 		let _ = world.update(state: .alive, x: 19, y: 18)
 		let _ = world.update(state: .alive, x: 20, y: 18)
 		let _ = world.update(state: .alive, x: 21, y: 18)
@@ -145,11 +140,11 @@ class GameScene: SKScene {
 			lastUpdate = currentTime
 		}
 
-		if isEditing {
-			return
-		}
+//        if isEditing {
+//            return
+//        }
 
-		if currentTime - lastUpdate < 0.4 {
+		if currentTime - lastUpdate < 1 {
 			return
 		}
 

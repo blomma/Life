@@ -1,14 +1,14 @@
 enum CellState {
-	case alive, dead
+    case alive, dead
 }
 
 class Cell {
 	let x: Int
 	let y: Int
 
-	var state: CellState
+    var state: CellState
 
-	var neighbours: [Cell] = [Cell]()
+    var neighbours: [Cell] = [Cell]()
 
 	init(state: CellState, x: Int, y: Int) {
 		self.state = state
@@ -17,12 +17,12 @@ class Cell {
 	}
 }
 
-func ==(lhs: Cell, rhs: Cell) -> Bool {
-	return lhs.x == rhs.x && lhs.y == rhs.y
-}
-
 extension Cell: Hashable {
 	var hashValue: Int {
 		return x.hashValue ^ y.hashValue
 	}
+
+    static func ==(lhs: Cell, rhs: Cell) -> Bool {
+        return lhs.x == rhs.x && lhs.y == rhs.y
+    }
 }

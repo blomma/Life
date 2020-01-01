@@ -5,11 +5,11 @@ class World {
 	private var activeCells: Set<Cell> = []
     public var width: Int
     public var height: Int
-    
+
 	init(width: Int, height: Int) {
         self.width = width
         self.height = height
-        
+
 		m = Matrix<Cell>(width: width, height: height, repeatValue: Cell(state: .dead, x: 0, y: 0))
 
 		// We walk the matrix
