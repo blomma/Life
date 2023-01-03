@@ -80,24 +80,17 @@ class GameScene: SKScene {
         let px: Double = (cx * cellSize) + (cellSize / 2) + cellMargin + cx
         let py: Double = (cy * cellSize) + (cellSize / 2) + cellMargin + cy
 
-        let node = SKSpriteNode()
-        node.color = NSColor(Color.orange)
-        node.size = CGSize(width: cellSize, height: cellSize)
+        let node = SKSpriteNode(color: NSColor(Color.orange), size: CGSize(width: cellSize, height: cellSize))
         node.position = CGPoint(x: px, y: py)
-        node.alpha = 0
 
         nodesInWorld[cell.x * 1000 + cell.y] = node
-
         worldNode.addChild(node)
-
-        node.run(SKAction.fadeIn(withDuration: 0.2))
     }
 
     func remove(cell: Cell) {
-        if let node: SKSpriteNode = nodesInWorld[cell.x * 1000 + cell.y] {
-            nodesInWorld.removeValue(forKey: cell.x * 1000 + cell.y)
+        if let node: SKSpriteNode = nodesInWorld.removeValue(forKey: cell.x * 1000 + cell.y) {
             node.run(SKAction.sequence([
-                SKAction.fadeOut(withDuration: 0.2),
+                SKAction.fadeOut(withDuration: 0.3),
                 SKAction.removeFromParent(),
             ]))
         }
@@ -110,7 +103,7 @@ class GameScene: SKScene {
         }
 
         let timeSinceLastUpdate = currentTime - lastUpdateTime
-        if timeSinceLastUpdate < 0.5 {
+        if timeSinceLastUpdate < 0.2 {
             return
         }
 
