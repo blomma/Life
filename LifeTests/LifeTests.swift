@@ -1,26 +1,16 @@
-//
-//  gameoflifeTests.swift
-//  gameoflifeTests
-//
-//  Created by Mikael Hultgren on 19/06/16.
-//  Copyright © 2016 Mikael Hultgren. All rights reserved.
-//
-
 import XCTest
-@testable import gameoflife
 
-class gameoflifeTests: XCTestCase {
-    
-    override func setUp() {
-        super.setUp()
+@testable import Life
+
+final class LifeTests: XCTestCase {
+    override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
     }
-    
-    override func tearDown() {
+
+    override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
     }
-    
+
     private func setUpWorld(width: Int, height: Int) -> World {
         let world: World = World(width: width, height: height)
         
@@ -39,7 +29,7 @@ class gameoflifeTests: XCTestCase {
     }
     
     func testPerformance() {
-		let world: World = World(width: 80, height: 80)
+        let world: World = World(width: 80, height: 80)
         let _ = world.update()
 
         self.measure {
@@ -47,24 +37,24 @@ class gameoflifeTests: XCTestCase {
         }
     }
 
-	func testPerformanceAlive() {
-		let world = setUpWorld(width: 80, height: 80)
+    func testPerformanceAlive() {
+        let world = setUpWorld(width: 80, height: 80)
         let _ = world.update()
 
         self.measure {
             let _ = world.update()
         }
-	}
-	
-	func testPerformanceAlive_200_200() {
-		let world = setUpWorld(width: 200, height: 200)
+    }
+    
+    func testPerformanceAlive_200_200() {
+        let world = setUpWorld(width: 200, height: 200)
         let _ = world.update()
 
         self.measure {
             let _ = world.update()
         }
-	}
-		
+    }
+        
     func testPerformanceAlive_800_800() {
         let world = setUpWorld(width: 800, height: 800)
         let _ = world.update()
@@ -74,12 +64,12 @@ class gameoflifeTests: XCTestCase {
         }
     }
     
-	func testPerformanceAlive_82_147() {
-		let world = setUpWorld(width: 82, height: 147)
+    func testPerformanceAlive_82_147() {
+        let world = setUpWorld(width: 82, height: 147)
         let _ = world.update()
 
         self.measure {
             let _ = world.update()
         }
-	}
+    }
 }
