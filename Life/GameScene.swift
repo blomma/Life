@@ -151,6 +151,7 @@ $3b11o3b$3b2obo3bob2o!
         }
     }
 
+    var spriteCache: [SKSpriteNode] = []
     func add(cell: Cell) {
         let cx = Double(cell.x)
         let cy = Double(cell.y)
@@ -158,9 +159,12 @@ $3b11o3b$3b2obo3bob2o!
         let px: Double = (cx * cellSize) + (cellSize / 2) + cellMargin + cx
         let py: Double = (cy * cellSize) + (cellSize / 2) + cellMargin + cy
 
-        let node = SKSpriteNode(color: NSColor(Color.orange), size: CGSize(width: cellSize, height: cellSize))
-        node.position = CGPoint(x: px, y: py)
+        let node = spriteCache.count > 0
+            ? spriteCache.remove(at: 0)
+        : SKSpriteNode(color: NSColor(Color.orange), size: CGSize(width: cellSize, height: cellSize))
+        
         node.blendMode = .replace
+        node.position = CGPoint(x: px, y: py)
 
         nodesInWorld[cell.x * 1000 + cell.y] = node
         worldNode.addChild(node)
@@ -169,6 +173,7 @@ $3b11o3b$3b2obo3bob2o!
     func remove(cell: Cell) {
         if let node: SKSpriteNode = nodesInWorld.removeValue(forKey: cell.x * 1000 + cell.y) {
             node.removeFromParent()
+            spriteCache.append(node)
         }
     }
 
