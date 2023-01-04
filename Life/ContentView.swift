@@ -7,11 +7,16 @@ struct ContentView: View {
         let scene = GameScene(size: size)
         scene.size = size
         scene.scaleMode = .fill
+        
         return scene
     }
 
     var body: some View {
-        SpriteView(scene: scene)
+        SpriteView(
+                scene: scene,
+                options: [.shouldCullNonVisibleNodes, .ignoresSiblingOrder],
+                debugOptions: [.showsDrawCount, .showsNodeCount]
+            )
             .frame(width: 600, height: 600)
             .ignoresSafeArea()
     }
